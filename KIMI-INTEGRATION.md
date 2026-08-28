@@ -144,20 +144,27 @@ it into the profile's `node_modules`.
 
 ## 4. Mount the provider (host plane)
 
-Append a row to the profile's patch layer. This registers a provider named `kimi`
-on the harness's subagent registry:
+Append an **insert block** to the profile's patch layer. This registers a
+provider named `kimi` on the harness's subagent registry.
+
+> **Patch syntax gotcha (verified live):** a bare `- id: <new-id>` row in a
+> patch file is an *override* of an existing row — if the id does not already
+> exist in the composed tree, the loader warns `patch: entry "<id>" not found`
+> and the row is **not** mounted. New rows must be wrapped in an `- insert:`
+> block (the same form the shipped `dsh-web-app` patch uses):
 
 ```yaml
 # ~/.dsh/profiles/web/cordis.patch.yml
-- id: subagent-kimi
-  name: '@deepseek-ai/dsh-subagent-acp'
-  config:
-    providerName: kimi                     # the name agents reference
-    command: /home/phage/.kimi-code/bin/kimi   # absolute path (or "kimi" if on PATH)
-    args: [acp]                            # run Kimi Code as an ACP server over stdio
-    permission: allow                      # 'allow' auto-approves the child's permission prompts (like --yolo);
-                                           # 'reject' declines every prompt
-    env: {}                                # optional extra env; parent env is forwarded credential-scrubbed
+- insert:
+    - id: subagent-kimi
+      name: '@deepseek-ai/dsh-subagent-acp'
+      config:
+        providerName: kimi                     # the name agents reference
+        command: /home/phage/.kimi-code/bin/kimi   # absolute path (or "kimi" if on PATH)
+        args: [acp]                            # run Kimi Code as an ACP server over stdio
+        permission: allow                      # 'allow' auto-approves the child's permission prompts (like --yolo);
+                                               # 'reject' declines every prompt
+        env: {}                                # optional extra env; parent env is forwarded credential-scrubbed
 ```
 
 Config fields supported by the bridge (`dsh-subagent-acp` 0.1.1-rc.2):
@@ -289,6 +296,7 @@ version whose peer range matches the harness version (both `0.1.1-rc.2` here).
 
 | Symptom | Likely cause / fix |
 |---|---|
+| `dsh: [.../cordis.patch.yml] patch: entry "subagent-kimi" not found` | You wrote the new row as a bare `- id:` entry; new rows must be wrapped in `- insert:` (see Step 4). |
 | `subagent-acp: child start failed` | `command` not found or not executable; use the absolute path (`~/.kimi-code/bin/kimi`). |
 | Provider not found when the tool is called | The host-plane provider row is missing or the GUI was not restarted after adding it. |
 | `tool-subagent: provider "kimi" cannot enforce maxDepth` | You set `maxDepth: <number>`; use `maxDepth: provider-managed`. |
