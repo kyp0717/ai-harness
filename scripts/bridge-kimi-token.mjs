@@ -75,6 +75,35 @@ function readKimiTokens(file) {
   }
 }
 
+/**
+ * Fail loudly if the CLI's refresh token is already dead, instead of storing
+ * a credential the harness would reject on first use. One refresh call is
+ * harmless: kimi's auth server tolerates refresh-token reuse (verified), and
+ * if it is already invalid nothing is lost.
+ */
+async function assertKimiTokenUsable(refreshToken) {
+  const response = await fetch('https://auth.kimi.com/api/oauth/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
+    body: new URLSearchParams({
+      client_id: '17e5f671-d194-4dfb-9706-5516cb48c098',
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+    }).toString(),
+    signal: AbortSignal.timeout(30_000),
+  })
+  if (response.ok) return
+  let detail = ''
+  try {
+    const json = await response.json()
+    detail = json.error_description ?? json.error ?? ''
+  } catch { /* keep generic detail */ }
+  throw new Error(
+    `the CLI's refresh token is rejected by auth.kimi.com (HTTP ${response.status}${detail ? `: ${detail}` : ''}) — ` +
+    'run `kimi login` once on this machine first, then re-run this script',
+  )
+}
+
 /** The pi-ai OAuth credential record the harness store holds verbatim. */
 function oauthPayload(tokens) {
   return { type: 'oauth', access: tokens.access, refresh: tokens.refresh, expires: tokens.expires }
@@ -169,7 +198,7 @@ async function verifyWithPiAi() {
   out.ok(`pi-ai request succeeded on kimi-coding/${flags.model} — model replied: ${JSON.stringify(text.slice(0, 80))}`)
 }
 
-function main() {
+async function main() {
   console.log('Kimi subscription token bridge — DeepSeek Harness')
   console.log(`  credentials file : ${CREDENTIALS_FILE}`)
   console.log(`  record key       : ${KIMI_RECORD_KEY}`)
@@ -186,9 +215,19 @@ function main() {
     return
   }
 
+  out.info('checking the CLI token is still accepted by auth.kimi.com…')
+  try {
+    await assertKimiTokenUsable(tokens.refresh)
+    out.ok('CLI token is valid')
+  } catch (error) {
+    out.fail(error.message)
+    out.info('recommended: use `npm run kimi-login` instead — it signs the harness in with its own independent subscription credential (does not depend on the CLI login)')
+    return
+  }
+
   const payload = oauthPayload(tokens)
   out.info(`access token expires ${new Date(payload.expires).toISOString()} — the harness refreshes automatically after that`)
-  out.info('tokens are stored in the harness credential store and never printed')
+  out.warn('the harness and the CLI now SHARE one token lineage — if either refreshes and the server rotates, the other can break. Prefer `npm run kimi-login` for an independent harness credential.')
 
   const doc = loadDocument(yaml)
   const current = doc.records[KIMI_RECORD_KEY]
@@ -207,10 +246,13 @@ function main() {
 
   if (flags.verify) {
     console.log('\n▸ Verifying through the harness\'s pi-ai stack…')
-    verifyWithPiAi().then(
-      () => { if (process.exitCode === undefined) process.exitCode = 0 },
-      (error) => { out.fail(`verification failed: ${error.message}`); process.exitCode = 1 },
-    )
+    try {
+      await verifyWithPiAi()
+      if (process.exitCode === undefined) process.exitCode = 0
+    } catch (error) {
+      out.fail(`verification failed: ${error.message}`)
+      process.exitCode = 1
+    }
   } else {
     console.log('\nNext steps:')
     console.log('  1. Restart the harness GUI.')
@@ -221,7 +263,7 @@ function main() {
 }
 
 try {
-  main()
+  await main()
 } catch (error) {
   console.error(`bridge failed: ${error.stack ?? error}`)
   process.exitCode = 1

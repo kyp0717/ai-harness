@@ -89,37 +89,65 @@ These intentionally differ per machine and are **not** part of the repo:
 
 The harness's `kimi-coding` provider can authenticate with the **same
 subscription account the CLI uses** ("Sign in with Kimi Code" OAuth), but this
-dsh build has no GUI button or command that starts that flow. The
-`scripts/bridge-kimi-token.mjs` script bridges the OAuth tokens your CLI
-already holds (from `kimi login`) into the harness credential store, so the
-harness talks to `api.kimi.com/coding` with your subscription — **no
-pay-as-you-go key**.
+dsh build has no GUI button or command that starts that flow. Two supported
+ways to give the harness the subscription credential:
+
+### 4a. Recommended: independent harness login (`npm run kimi-login`)
+
+Runs the device-code flow directly and stores the credential in the harness
+store under `llm-pi-ai/kimi-coding`. **The harness gets its OWN token lineage,
+so its background refreshes can never invalidate your CLI's login.**
 
 ```bash
-kimi login                      # once per machine (if not already done)
-npm run bridge                  # imports your CLI's subscription token into the harness
-npm run bridge:verify           # optional: make one small request to prove it works
+npm run kimi-login
+# prints a URL + code → open the URL, sign in with your subscription account, enter the code
 ```
 
-Verified properties:
+### 4b. Alternative: bridge the CLI's token (`npm run bridge`)
+
+Imports the OAuth tokens your CLI already holds (from `kimi login`) into the
+harness store. ⚠️ **The harness and CLI then SHARE one token lineage** — the
+harness refreshing autonomously can invalidate your CLI's login, and vice
+versa (this is exactly what caused the "OAuth refresh failed … invalid grant"
+error; see troubleshooting below). Prefer 4a.
+
+```bash
+kimi login            # once per machine
+npm run bridge        # imports + validates the CLI token
+npm run bridge:verify # optional: make one small request to prove it works
+```
+
+Verified properties (both paths):
 
 - The harness record written is `llm-pi-ai/kimi-coding` (kind `grant`) in
   `~/.dsh/.credentials.yaml`; existing entries (`refs`, other records) are
   preserved.
-- The Kimi auth server allows refresh-token reuse, so the harness refreshing
-  tokens in the background does **not** invalidate your CLI's login.
-- Tokens are never printed, and your CLI's token file is never modified.
+- Tokens are never printed. Path 4b never modifies your CLI's token file;
+  path 4a doesn't touch the CLI at all.
 
-After bridging: restart the GUI → Settings → Models → pick provider
+After login: restart the GUI → Settings → Models → pick provider
 **`kimi-coding`**, model **`k3`** (Kimi K3, **1M context**) or `k3-256k`
 (256K) / `kimi-for-coding` (K2.7 Code), set as default agent model → new
 sessions run on your subscription. (This repo's setup sets `k3` — 1M
 context — as the default; you can still switch per session from the
 conversation's model selector.)
 
+### Troubleshooting: "OAuth refresh failed for kimi-coding … The provided authorization grant is invalid"
+
+The stored refresh token was rejected by `auth.kimi.com`. Causes:
+
+- The shared lineage (4b) was burned: the harness refreshed, the server
+  rotated the token, and the other copy (CLI's or the harness's) became
+  invalid. This is the classic failure of two clients sharing one OAuth
+  refresh token.
+- Or the token genuinely expired/revoked.
+
+Fix: run `npm run kimi-login` (preferred — independent credential), or
+`kimi login` followed by `npm run bridge`. No API key is involved.
+
 ## Re-running (e.g. after a weekly swap, or after a harness upgrade)
 
 `npm run setup` again — it detects what is already in place and only changes
-what is missing or out of date. After any re-run: restart the GUI. The token
-bridge (`npm run bridge`) is idempotent too — re-run it on a machine whenever
-you re-authenticate kimi there.
+what is missing or out of date. After any re-run: restart the GUI. The
+subscription credential is per-machine: run `npm run kimi-login` (or `kimi
+login` + `npm run bridge`) on a machine whenever you re-authenticate there.
