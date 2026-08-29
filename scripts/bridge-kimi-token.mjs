@@ -33,6 +33,10 @@ import {
 const flags = {
   dryRun: process.argv.includes('--dry-run'),
   verify: process.argv.includes('--verify'),
+  model: (() => {
+    const i = process.argv.indexOf('--model')
+    return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : 'kimi-for-coding'
+  })(),
   kimiCredentials: (() => {
     const i = process.argv.indexOf('--kimi-credentials')
     return i >= 0 && process.argv[i + 1] ? expanded(process.argv[i + 1]) : undefined
@@ -152,8 +156,8 @@ async function verifyWithPiAi() {
     if (provider) models.setProvider(provider)
   } catch { /* provider set below via getModel fallback */ }
 
-  const model = models.getModel('kimi-coding', 'kimi-for-coding')
-  if (!model) throw new Error('kimi-coding/kimi-for-coding not found in the pi-ai catalog')
+  const model = models.getModel('kimi-coding', flags.model)
+  if (!model) throw new Error(`kimi-coding/${flags.model} not found in the pi-ai catalog`)
   const message = await models.completeSimple(model, {
     messages: [{ role: 'user', content: [{ type: 'text', text: 'Reply with exactly: OK' }] }],
   }, { maxTokens: 32 })
@@ -162,7 +166,7 @@ async function verifyWithPiAi() {
     .map((block) => block.text)
     .join('')
     .trim()
-  out.ok(`pi-ai request succeeded — model replied: ${JSON.stringify(text.slice(0, 80))}`)
+  out.ok(`pi-ai request succeeded on kimi-coding/${flags.model} — model replied: ${JSON.stringify(text.slice(0, 80))}`)
 }
 
 function main() {

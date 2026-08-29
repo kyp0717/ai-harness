@@ -111,8 +111,11 @@ Verified properties:
 - Tokens are never printed, and your CLI's token file is never modified.
 
 After bridging: restart the GUI → Settings → Models → pick provider
-**`kimi-coding`**, model **`kimi-for-coding`** (K2.7 Code) or **`k3-256k`**,
-set as default agent model → new sessions run on your subscription.
+**`kimi-coding`**, model **`k3`** (Kimi K3, **1M context**) or `k3-256k`
+(256K) / `kimi-for-coding` (K2.7 Code), set as default agent model → new
+sessions run on your subscription. (This repo's setup sets `k3` — 1M
+context — as the default; you can still switch per session from the
+conversation's model selector.)
 
 ## Re-running (e.g. after a weekly swap, or after a harness upgrade)
 
