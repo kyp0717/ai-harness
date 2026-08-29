@@ -1,0 +1,15 @@
+{
+  "name": "ai-harness-deployment",
+  "private": true,
+  "version": "1.0.0",
+  "description": "DeepSeek Harness (dsh) deployment configuration: Kimi Code integration setup script, pinned vendor packages, and operator docs for keeping two machines in parity.",
+  "type": "module",
+  "scripts": {
+    "setup": "node scripts/setup-kimi.mjs",
+    "setup:dry": "node scripts/setup-kimi.mjs --dry-run",
+    "setup:doctor": "node scripts/setup-kimi.mjs --dry-run --verbose"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

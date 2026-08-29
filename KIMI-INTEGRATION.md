@@ -4,6 +4,18 @@ A step-by-step, reproducible guide for wiring Moonshot's **Kimi Code CLI** into 
 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) deployment, plus
 how to use **Kimi K2/K3 models** as the harness's main agent model.
 
+> **Prefer the automated setup.** The manual steps below are the reference
+> implementation. For day-to-day work — especially keeping **two machines in
+> parity** — use the one-command, idempotent script:
+>
+> ```bash
+> npm run setup            # or: node scripts/setup-kimi.mjs
+> npm run setup:dry        # preview without writing
+> ```
+>
+> See [`SETUP.md`](SETUP.md) (one machine) and
+> [`TWO-COMPUTER-WORKFLOW.md`](TWO-COMPUTER-WORKFLOW.md) (weekly swap routine).
+
 This document was written against a verified setup:
 
 | Component | Version / value verified |
