@@ -33,7 +33,7 @@ import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:
 import { dirname, join } from 'node:path'
 import {
   DSH_HOME, HOME, NPM_CACHE_DIR, PROFILE_DIR, PROFILE_NODE_MODULES, VENDOR_DIR,
-  findDsh, installFromTarball, locateKimi, pkgVersion, read, run, sha256, yamlQuote,
+  findDsh, installFromTarball, jsYaml, locateKimi, pkgVersion, read, run, sha256, yamlQuote,
 } from './lib.mjs'
 
 // ── constants ───────────────────────────────────────────────────────────────
@@ -56,6 +56,7 @@ const SECTION_END = '# === END KIMI SETUP ==='
 const flags = {
   dryRun: process.argv.includes('--dry-run'),
   defaultPreset: !process.argv.includes('--no-default-preset'),
+  defaultModel: !process.argv.includes('--no-default-model'),
   verbose: process.argv.includes('--verbose'),
 }
 
@@ -237,6 +238,55 @@ function writePreset(dshDir) {
   out.ok(`created ${PRESET_FILE} (copy of the standard preset + subagent_kimi tool)`)
 }
 
+// ── step 6: harness settings (default model + provider profile) ────────────
+
+/**
+ * Ensure the harness settings make this machine behave like the known-good
+ * configuration: the `kimi-coding` provider profile exists and the default
+ * agent model is `kimi-coding / k3` (Kimi K3, 1M context). Idempotent —
+ * preserves every other key in settings.yaml.
+ */
+function writeSettings() {
+  const settingsFile = join(DSH_HOME, 'settings.yaml')
+  const yaml = jsYaml()
+  const text = read(settingsFile)
+  let doc = text === undefined ? {} : yaml.load(text)
+  if (typeof doc !== 'object' || doc === null || Array.isArray(doc)) {
+    out.fail(`${settingsFile} is not a mapping — refusing to touch it`)
+    return
+  }
+  const next = structuredClone(doc)
+
+  // provider profile for the pi-ai route
+  if (!next['llm-pi-ai']?.providers?.['kimi-coding']) {
+    next['llm-pi-ai'] ??= {}
+    next['llm-pi-ai'].providers ??= {}
+    next['llm-pi-ai'].providers['kimi-coding'] = {}
+  }
+
+  // default agent model
+  const currentModel = next['agent-default-model']
+  const desiredModel = { provider: 'kimi-coding', model: 'k3' }
+  const sameModel = currentModel !== undefined &&
+    currentModel.provider === desiredModel.provider &&
+    currentModel.model === desiredModel.model
+  if (!sameModel && flags.defaultModel) {
+    next['agent-default-model'] = desiredModel
+  }
+
+  const changed = JSON.stringify(next) !== JSON.stringify(doc)
+  if (!changed) {
+    out.ok(`settings already match the known-good config (${settingsFile})`)
+    return
+  }
+  if (flags.dryRun) {
+    out.info('(dry-run) would write settings.yaml: ' + JSON.stringify(next))
+    return
+  }
+  writeFileSync(settingsFile, yaml.dump(next))
+  out.ok(`wrote ${settingsFile} (default model kimi-coding/k3, provider profile kimi-coding)`)
+}
+
 // ── main ───────────────────────────────────────────────────────────────────
 
 function main() {
@@ -251,7 +301,7 @@ function main() {
   }
 
   // 1. Kimi binary
-  out.step('1/5  Kimi Code CLI')
+  out.step('1/6  Kimi Code CLI')
   const kimi = locateKimi()
   if (!kimi) {
     out.fail('kimi not found on PATH or in ~/.kimi-code/bin — install it first (https://github.com/MoonshotAI/kimi-code), then run `kimi login`')
@@ -265,7 +315,7 @@ function main() {
   }
 
   // 2. Harness install + version
-  out.step('2/5  Harness install')
+  out.step('2/6  Harness install')
   const dshDir = findDsh()
   const harnessVersion = dshDir ? pkgVersion(join(dshDir, 'package.json')) : undefined
   if (dshDir) out.ok(`dsh at ${dshDir} (version ${harnessVersion ?? 'unknown'})`)
@@ -275,32 +325,34 @@ function main() {
   }
 
   // 3. Packages
-  out.step('3/5  ACP bridge packages')
+  out.step('3/6  ACP bridge packages')
   const bridgeVersion = harnessVersion ?? '0.1.1-rc.2'
   ensurePackage(BRIDGE, bridgeVersion, BRIDGE_PKG)
   ensurePackage(SDK, '0.25.1', SDK_PKG)
   verifyBridge()
 
   // 4. Profile patch
-  out.step('4/5  Profile patch (cordis.patch.yml)')
+  out.step('4/6  Profile patch (cordis.patch.yml)')
   if (!kimi) out.fail('skipping patch — kimi binary not resolved')
   else writePatch(kimi)
 
   // 5. Preset
-  out.step('5/5  Agent preset')
+  out.step('5/6  Agent preset')
   if (dshDir) writePreset(dshDir)
   else out.fail('skipping preset — dsh install not located')
+
+  // 6. Harness settings (default model + provider profile)
+  out.step('6/6  Harness settings (default model)')
+  writeSettings()
 
   // Next steps
   console.log('\n────────────────────────────────────────────────────')
   console.log('Next steps:')
   console.log('  1. Restart the harness GUI (stop `dsh web`, start it again).')
-  console.log('  2. Start a NEW session (it uses the `kimi` preset) and confirm')
-  console.log('     the tool catalog contains `subagent_kimi`.')
-  console.log('  3. Delegate a task: "delegate this to the kimi subagent".')
-  console.log('  4. Per-machine secrets (never committed): Kimi login state and')
-  console.log('     Settings → API keys → MOONSHOT_API_KEY / KIMI_API_KEY (for')
-  console.log('     Kimi K2/K3 as the main model).')
+  console.log('  2. Start a NEW session (it uses the `kimi` preset, default model')
+  console.log('     kimi-coding/k3) and confirm `subagent_kimi` is in the tool catalog.')
+  console.log('  3. Per-machine secrets (never committed): run `npm run kimi-login`')
+  console.log('     (subscription credential) and set any API keys in the GUI.')
 }
 
 try {

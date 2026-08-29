@@ -114,15 +114,22 @@ Rules observed in this harness: kebab-case `name`; `name` + `description`
 required; invalid frontmatter → skill ignored (logged). Skills are loaded per
 session; a loaded skill's instructions override generic guidance for that task.
 
-### Skills shipped in this repo
+### Skills in this repo (vendored, git-synced)
+
+`.agents/skills/` holds **34 skills** — the full poteto set (frozen at import
+time) plus two harness-ops skills:
 
 | Skill | Purpose |
 |---|---|
+| poteto's `noodle` collection (32) | execute, plan, review, refine, quality, debugging, worktree, commit, testing, todo, reflect, meditate, brain, ruminate, unslop, ts/go/react best-practices, frontend-design, interaction-design, adversarial-review, ast-grep, codex, find-skills, skill-creator, noodle, schedule, oops, … |
+| `how` | poteto's architecture-explainer skill |
+| `verify-atlas` | poteto's project-local verification skill example |
+| `poteto-mode` | poteto's agent style |
 | `kimi-integration` | Deploy/repair Kimi on a machine (bridge, subscription login, troubleshooting) |
 | `machine-parity` | The weekly two-computer sync + verification checklist |
 
 Available in this repo's sessions automatically (`.agents/skills/`); install
-globally with `npm run skills:install`.
+globally on a machine with `npm run skills:install`.
 
 ### Importing third-party collections
 

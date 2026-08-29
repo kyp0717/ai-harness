@@ -53,7 +53,15 @@ What it does (see the header of `scripts/setup-kimi.mjs` for the full map):
    - sets the default agent preset to `kimi`.
 5. Creates `~/.dsh/.agent-presets/kimi/agent.cordis.yml` — the shipped
    `standard` preset plus the `subagent_kimi` tool row.
-6. Verifies the bridge imports from the profile's module resolution path.
+6. Writes `~/.dsh/settings.yaml` (idempotently, preserving other keys):
+   - `agent-default-model: {provider: kimi-coding, model: k3}` (the 1M-context
+     Kimi K3), and
+   - the `llm-pi-ai.providers.kimi-coding` provider profile.
+7. Verifies the bridge imports from the profile's module resolution path.
+
+After `npm run setup`, the machine's harness *configuration* is identical to
+the known-good one; the only per-machine step left is the subscription
+credential (`npm run kimi-login`).
 
 ## 3. Restart and verify
 
