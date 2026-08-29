@@ -116,8 +116,8 @@ session; a loaded skill's instructions override generic guidance for that task.
 
 ### Skills in this repo (vendored, git-synced)
 
-`.agents/skills/` holds **34 skills** — the full poteto set (frozen at import
-time) plus two harness-ops skills:
+`.agents/skills/` holds **35 skills** — the full poteto set (frozen at import
+time) plus three harness-ops skills:
 
 | Skill | Purpose |
 |---|---|
@@ -125,6 +125,7 @@ time) plus two harness-ops skills:
 | `how` | poteto's architecture-explainer skill |
 | `verify-atlas` | poteto's project-local verification skill example |
 | `poteto-mode` | poteto's agent style |
+| `feature-pipeline` | **Delegation-first default**: runs the poteto plan → execute → review pipeline automatically for any delegated feature request (see `POTETO-SKILLS-WORKFLOW.md`) |
 | `kimi-integration` | Deploy/repair Kimi on a machine (bridge, subscription login, troubleshooting) |
 | `machine-parity` | The weekly two-computer sync + verification checklist |
 

@@ -14,11 +14,12 @@ orchestration** patterns.
 | `scripts/bridge-kimi-token.mjs` | **Idempotent** bridge: imports your Kimi Code CLI's *subscription* OAuth tokens into the harness credential store (shared lineage — prefer `kimi-login`). |
 | `scripts/install-skills.mjs` | Copies repo skills (`.agents/skills/`) into `~/.dsh/skills/` so they work in every workspace. |
 | `scripts/import-skills.mjs` | Imports third-party SKILL.md collections (poteto/noodle, poteto/how, etc.) into the user root, idempotently. |
-| `.agents/skills/` | Starter skills: `kimi-integration`, `machine-parity` (auto-discovered in this repo's sessions). |
+| `.agents/skills/` | 35 vendored skills: poteto's full set (noodle collection, `how`, `verify-atlas`, `poteto-mode`), `feature-pipeline` (delegation-first default), plus `kimi-integration` & `machine-parity`. Auto-discovered in this repo's sessions. |
 | `vendor/` | Pinned tarballs (with SHA-256 in git history) for offline install — no npm registry needed on the target machine. |
 | `SETUP.md` | Step-by-step for setting up **one** machine from scratch. |
 | `TWO-COMPUTER-WORKFLOW.md` | The weekly-swap procedure: what's synced, what's per-machine, the checklist, known-good snapshot. |
 | `ORCHESTRATION.md` | Building skills + orchestrating agents (subagents, kimi subagent, workflows, ralph). |
+| `POTETO-SKILLS-WORKFLOW.md` | **The feature-building how-to with poteto's skills** — delegation-first pipeline (plan → execute → review), setup, cheat sheet. |
 | `KIMI-INTEGRATION.md` | The original deep-dive: how the integration works, the manual steps, the patch-syntax gotchas, troubleshooting. |
 
 ## Quick start (one machine)
