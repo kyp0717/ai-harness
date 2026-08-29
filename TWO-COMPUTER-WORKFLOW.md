@@ -15,11 +15,13 @@ below so you never try to "sync" the wrong thing.
 | Item | Synced via repo? | Where it lives |
 |---|---|---|
 | Setup script + docs + pinned vendor tarballs | ✅ yes (this repo) | `scripts/`, `vendor/`, `*.md` |
+| Token bridge script (subscription → harness) | ✅ yes (this repo) | `scripts/bridge-kimi-token.mjs` |
 | Harness version (pin to `0.1.1-rc.2`) | ✅ yes — documented + enforced by the script | `SETUP.md` § 1 |
 | Profile patch (`cordis.patch.yml` kimi section) | ✅ yes — written by the script | `~/.dsh/profiles/web/cordis.patch.yml` |
 | `kimi` agent preset | ✅ yes — written by the script | `~/.dsh/.agent-presets/kimi/agent.cordis.yml` |
 | ACP bridge + SDK packages | ✅ yes — installed from `vendor/` by the script | `~/.dsh/profiles/node_modules/…` |
 | Kimi login / OAuth / sessions | ❌ **per machine** | `~/.kimi-code/` |
+| Bridged subscription credential in the harness store | ❌ **per machine** (created by `npm run bridge`) | `~/.dsh/.credentials.yaml` |
 | Provider API keys (`MOONSHOT_API_KEY`, `KIMI_API_KEY`) | ❌ **per machine** (GUI Settings → API keys) | harness settings storage |
 | Model selection / default agent model | ⚠️ per machine (set once in GUI; same values on both) | GUI Settings → Models |
 | dsh GUI launch method | ⚠️ per machine (same pinned version) | your shell / launcher |
@@ -50,12 +52,13 @@ script/docs here instead, then re-run `npm run setup` on B.)
 cd ai-harness
 git pull
 npm run setup        # idempotent: applies anything missing/out of date
+npm run bridge       # idempotent: re-imports your subscription token (run after `kimi login`)
 # restart the harness GUI, then verify (SETUP.md § 3)
 ```
 
-That's the whole routine. Because `npm run setup` is idempotent and
-self-verifying, running it every time you land on a machine keeps both in
-parity even if one of them drifted.
+That's the whole routine. Because `npm run setup` and `npm run bridge` are
+idempotent and self-verifying, running them every time you land on a machine
+keeps both in parity even if one of them drifted.
 
 ### While working on machine B
 

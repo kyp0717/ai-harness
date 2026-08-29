@@ -7,7 +7,10 @@
   "scripts": {
     "setup": "node scripts/setup-kimi.mjs",
     "setup:dry": "node scripts/setup-kimi.mjs --dry-run",
-    "setup:doctor": "node scripts/setup-kimi.mjs --dry-run --verbose"
+    "setup:doctor": "node scripts/setup-kimi.mjs --dry-run --verbose",
+    "bridge": "node scripts/bridge-kimi-token.mjs",
+    "bridge:verify": "node scripts/bridge-kimi-token.mjs --verify",
+    "bridge:dry": "node scripts/bridge-kimi-token.mjs --dry-run"
   },
   "engines": {
     "node": ">=18"

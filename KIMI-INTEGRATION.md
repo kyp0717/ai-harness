@@ -293,6 +293,17 @@ To use it:
 The provider directory the Settings UI renders is data-driven from the installed
 pi-ai catalog — no code changes required.
 
+### Using your Kimi Code *subscription* (no API key)
+
+The `kimi-coding` provider also ships the subscription OAuth flow ("Sign in with
+Kimi Code" — the same `auth.kimi.com` device login and client id the CLI uses),
+but this dsh build exposes no GUI button or command to start it. `npm run bridge`
+(`scripts/bridge-kimi-token.mjs`) imports the OAuth tokens your CLI already
+holds (from `kimi login`) into the harness credential store under
+`llm-pi-ai/kimi-coding` (kind `grant`), so the harness authenticates to
+`api.kimi.com/coding` with your **monthly subscription** — verified end-to-end
+with a real request through the harness's pi-ai stack. See `SETUP.md` § 4.
+
 ---
 
 ## 10. Appendix: version matching and troubleshooting

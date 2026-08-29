@@ -80,12 +80,43 @@ dsh --profile web --dump-config | grep -A6 "subagent-kimi"
 These intentionally differ per machine and are **not** part of the repo:
 
 - **Kimi credentials** — `~/.kimi-code/` (OAuth tokens, config.toml, sessions).
-- **API keys for using Kimi as the main model** — in the harness GUI:
-  Settings → API keys → `MOONSHOT_API_KEY` (provider `moonshotai`) or
-  `KIMI_API_KEY` (provider `kimi-coding`). Then Settings → Models → pick
-  e.g. `moonshotai / kimi-k2.7-code` and set it as the default agent model.
+- **API keys for using Kimi via the *API*** (pay-as-you-go) — in the harness
+  GUI: Settings → API keys → `MOONSHOT_API_KEY` (provider `moonshotai`) or
+  `KIMI_API_KEY` (provider `kimi-coding`).
+- **Your Kimi *subscription*** (no API key) — see the next section.
+
+## 4. Use your Kimi Code subscription as the main model (no API key)
+
+The harness's `kimi-coding` provider can authenticate with the **same
+subscription account the CLI uses** ("Sign in with Kimi Code" OAuth), but this
+dsh build has no GUI button or command that starts that flow. The
+`scripts/bridge-kimi-token.mjs` script bridges the OAuth tokens your CLI
+already holds (from `kimi login`) into the harness credential store, so the
+harness talks to `api.kimi.com/coding` with your subscription — **no
+pay-as-you-go key**.
+
+```bash
+kimi login                      # once per machine (if not already done)
+npm run bridge                  # imports your CLI's subscription token into the harness
+npm run bridge:verify           # optional: make one small request to prove it works
+```
+
+Verified properties:
+
+- The harness record written is `llm-pi-ai/kimi-coding` (kind `grant`) in
+  `~/.dsh/.credentials.yaml`; existing entries (`refs`, other records) are
+  preserved.
+- The Kimi auth server allows refresh-token reuse, so the harness refreshing
+  tokens in the background does **not** invalidate your CLI's login.
+- Tokens are never printed, and your CLI's token file is never modified.
+
+After bridging: restart the GUI → Settings → Models → pick provider
+**`kimi-coding`**, model **`kimi-for-coding`** (K2.7 Code) or **`k3-256k`**,
+set as default agent model → new sessions run on your subscription.
 
 ## Re-running (e.g. after a weekly swap, or after a harness upgrade)
 
 `npm run setup` again — it detects what is already in place and only changes
-what is missing or out of date. After any re-run: restart the GUI.
+what is missing or out of date. After any re-run: restart the GUI. The token
+bridge (`npm run bridge`) is idempotent too — re-run it on a machine whenever
+you re-authenticate kimi there.

@@ -29,28 +29,15 @@
  * npm. POSIX paths are assumed (both of your machines run Linux).
  */
 
-import { spawnSync } from 'node:child_process'
-import { createHash } from 'node:crypto'
+import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
 import {
-  copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync,
-  renameSync, rmSync, writeFileSync,
-} from 'node:fs'
-import { homedir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+  DSH_HOME, HOME, NPM_CACHE_DIR, PROFILE_DIR, PROFILE_NODE_MODULES, VENDOR_DIR,
+  findDsh, installFromTarball, locateKimi, pkgVersion, read, run, sha256, yamlQuote,
+} from './lib.mjs'
 
 // ── constants ───────────────────────────────────────────────────────────────
 
-const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url))
-const REPO_ROOT = resolve(SCRIPT_DIR, '..')
-const VENDOR_DIR = join(REPO_ROOT, 'vendor')
-const NPM_CACHE_DIR = join(REPO_ROOT, '.npm-cache')
-
-const HOME = homedir()
-const DSH_HOME = process.env.DSH_HOME || join(HOME, '.dsh')
-const PROFILE = 'web'
-const PROFILE_DIR = join(DSH_HOME, 'profiles', PROFILE)
-const PROFILE_NODE_MODULES = join(DSH_HOME, 'profiles', 'node_modules')
 const PATCH_FILE = join(PROFILE_DIR, 'cordis.patch.yml')
 const PRESET_DIR = join(DSH_HOME, '.agent-presets', 'kimi')
 const PRESET_FILE = join(PRESET_DIR, 'agent.cordis.yml')
@@ -59,8 +46,6 @@ const BRIDGE = '@deepseek-ai/dsh-subagent-acp'
 const SDK = '@agentclientprotocol/sdk'
 const BRIDGE_PKG = join(PROFILE_NODE_MODULES, BRIDGE, 'package.json')
 const SDK_PKG = join(PROFILE_NODE_MODULES, SDK, 'package.json')
-
-const KIMI_BIN_CANDIDATES = ['~/.kimi-code/bin/kimi', '~/.kimi/bin/kimi']
 
 /** Marker section boundaries the script owns inside cordis.patch.yml. */
 const SECTION_START = '# === KIMI SETUP (managed by setup-kimi.mjs) ==='
@@ -82,107 +67,8 @@ const out = {
   fail: (msg) => { console.error(`  ✗ ${msg}`); process.exitCode = 1 },
 }
 
-const expanded = (p) => (p.startsWith('~') ? join(HOME, p.slice(1)) : p)
-
-function read(p) {
-  try { return readFileSync(p, 'utf8') } catch { return undefined }
-}
-
-function run(cmd, args, opts = {}) {
-  const r = spawnSync(cmd, args, { encoding: 'utf8', ...opts })
-  if (r.error) throw r.error
-  return r
-}
-
-function sha256(file) {
-  return createHash('sha256').update(readFileSync(file)).digest('hex')
-}
-
-function copyDir(from, to) {
-  mkdirSync(to, { recursive: true })
-  for (const entry of readdirSync(from, { withFileTypes: true })) {
-    const s = join(from, entry.name)
-    const d = join(to, entry.name)
-    if (entry.isDirectory()) copyDir(s, d)
-    else copyFileSync(s, d)
-  }
-}
-
-/** Extract an npm tarball (single top-level `package/` dir) into `targetDir`. */
-function installFromTarball(tgz, targetDir) {
-  const tmp = join(dirname(targetDir), `.tmp-${process.pid}-${Date.now()}`)
-  mkdirSync(tmp, { recursive: true })
-  try {
-    const r = run('tar', ['xzf', tgz, '-C', tmp])
-    if (r.status !== 0) throw new Error(`tar extraction failed for ${tgz}: ${r.stderr}`)
-    const pkgDir = join(tmp, 'package')
-    if (!existsSync(pkgDir)) throw new Error(`tarball ${tgz} has no package/ dir`)
-    rmSync(targetDir, { recursive: true, force: true })
-    mkdirSync(dirname(targetDir), { recursive: true })
-    try { renameSync(pkgDir, targetDir) } catch {
-      copyDir(pkgDir, targetDir) // cross-device fallback
-      rmSync(pkgDir, { recursive: true, force: true })
-    }
-  } finally {
-    rmSync(tmp, { recursive: true, force: true })
-  }
-}
-
-function pkgVersion(pkgFile) {
-  const raw = read(pkgFile)
-  if (!raw) return undefined
-  try { return JSON.parse(raw).version } catch { return undefined }
-}
-
-function yamlQuote(s) {
-  // Double-quoted YAML scalar with minimal escaping — safe for file paths.
-  return `"${s.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
-}
-
-// ── step 1: locate the Kimi Code CLI ────────────────────────────────────────
-
-function locateKimi() {
-  const which = run('bash', ['-lc', 'command -v kimi 2>/dev/null || true'], { stdio: ['ignore', 'pipe', 'ignore'] })
-  const onPath = which.stdout?.trim()
-  if (onPath) return onPath
-  for (const cand of KIMI_BIN_CANDIDATES) {
-    const p = expanded(cand)
-    if (existsSync(p)) return p
-  }
-  return undefined
-}
-
-// ── step 2: locate the dsh install and harness version ─────────────────────
-
-function candidateDshDirs() {
-  const list = []
-  // The running profile's flat node_modules mirror.
-  list.push(join(PROFILE_NODE_MODULES, 'dsh'))
-  // npx cache installs.
-  const npxRoot = join(HOME, '.npm', '_npx')
-  if (existsSync(npxRoot)) {
-    for (const entry of readdirSync(npxRoot)) {
-      list.push(join(npxRoot, entry, 'node_modules', '@deepseek-ai', 'dsh'))
-    }
-  }
-  // Global npm install.
-  const g = run('npm', ['root', '-g'], { stdio: ['ignore', 'pipe', 'ignore'] })
-  if (g.status === 0 && g.stdout?.trim()) {
-    list.push(join(g.stdout.trim(), '@deepseek-ai', 'dsh'))
-  }
-  return list
-}
-
-function findDsh() {
-  for (const dir of candidateDshDirs()) {
-    const pkg = join(dir, 'package.json')
-    if (!existsSync(pkg)) continue
-    try {
-      if (JSON.parse(readFileSync(pkg, 'utf8')).name === '@deepseek-ai/dsh') return dir
-    } catch { /* keep searching */ }
-  }
-  return undefined
-}
+// Shared helpers (constants, dsh/kimi discovery, tarball install, yamlQuote)
+// live in ./lib.mjs.
 
 // ── step 3: package install ────────────────────────────────────────────────
 
