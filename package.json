@@ -11,7 +11,9 @@
     "bridge": "node scripts/bridge-kimi-token.mjs",
     "bridge:verify": "node scripts/bridge-kimi-token.mjs --verify",
     "bridge:dry": "node scripts/bridge-kimi-token.mjs --dry-run",
-    "kimi-login": "node scripts/kimi-login.mjs"
+    "kimi-login": "node scripts/kimi-login.mjs",
+    "skills:install": "node scripts/install-skills.mjs",
+    "skills:dry": "node scripts/install-skills.mjs --dry-run"
   },
   "engines": {
     "node": ">=18"
