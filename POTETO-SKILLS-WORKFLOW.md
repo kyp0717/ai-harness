@@ -1,13 +1,29 @@
 # POTETO-SKILLS-WORKFLOW.md — building features with poteto's skills (delegation-first)
 
-How to use poteto's skill set (from the `noodle` collection and friends) to
-build features in this harness — written for the workflow where **you delegate
-feature work to the agent and the agent drives the pipeline**, instead of you
-prompting step by step.
+How to use poteto's skill set to build features in this harness — written for
+the workflow where **you delegate feature work to the agent and the agent
+drives the pipeline**, instead of you prompting step by step.
 
-The full poteto skill set is vendored in `.agents/skills/` (git-synced) and
-installed in `~/.dsh/skills/` (every workspace). See `ORCHESTRATION.md` for
-the general skill/orchestration reference.
+The loaded set (vendored in `.agents/skills/`, installed in `~/.dsh/skills/`):
+
+- **noodle collection (32)** — the stage machinery: `plan`, `execute`,
+  `review`, `quality`, `testing`, `refine`, `todo`, `brain`, `reflect`, …
+- **pstack (34, from `poteto/plugins#pstack`)** — the guardrails:
+  **21 engineering principles** (`principle-prove-it-works`,
+  `principle-encode-lessons-in-structure`, …), the workflow skills
+  (`architect`, `arena`, `interrogate`, `tdd`, `why`, `show-me-your-work`,
+  `setup-pstack`), and **`poteto-mode`** (the style + playbook routing layer).
+- **poteto/how, verify-atlas** — architecture explainer, verification-skill
+  example.
+- **ours**: `feature-pipeline` (delegation-first default), `kimi-integration`,
+  `machine-parity`.
+
+**What the full pstack changes:** before, the pipeline (plan → execute →
+review) ran on good general practice. Now the plans are **principle-governed**
+(the `plan` skill must cite `brain/principles/`), sessions can run in
+**poteto-mode** (style + playbook routing: features, bug fixes, refactors, PR
+shipping), and **`show-me-your-work` / `principle-prove-it-works`** make
+evidence the deliverable, not claims.
 
 ---
 
@@ -33,15 +49,27 @@ Poteto's skills assume conventions; set them up once per project:
 1. **`brain/` directory** — the `plan` skill *requires* reading
    `brain/principles.md` and writes plans to `brain/plans/`:
    ```bash
-   mkdir -p brain/plans && echo "# Principles" > brain/principles.md
+   mkdir -p brain/plans brain/principles && echo "# Principles" > brain/principles.md
    ```
-   Add principles over time (or start from poteto's `principle-*` playbooks).
+   The plan skill follows `[[wikilink]]s` from `brain/principles.md` into
+   `brain/principles/<name>.md` files. Seed those from poteto's **21 principle
+   skills** (now vendored in `.agents/skills/principle-*`): each
+   `principle-*/SKILL.md` body becomes the corresponding
+   `brain/principles/<name>.md`, and `brain/principles.md` lists them as
+   wikilinks. (A one-shot bootstrap: copy each principle skill's body into the
+   project's `brain/principles/`.) Without this, the plan skill's Step 1 has
+   no principles to cite and the plans lose their design guardrails.
 2. **Worktrees** — `execute` refuses to edit `main`. The harness adapts
    poteto's `noodle worktree` to plain `git worktree`. Safe default: let the
    agent use worktrees for anything beyond a one-file fix.
 3. **poteto-mode** (optional style layer) — say *"use poteto-mode"* (it is
    user-invocable only). It applies poteto's agent style and playbooks
    (feature, bug-fix, refactoring, investigation, …) for the session.
+4. **setup-pstack** (optional) — poteto's pstack routes work to *different
+   models per role* (feature model, explorer model, critic models). In this
+   harness the route is the session's model (`kimi-coding/k3` by default);
+   the `setup-pstack` skill records the intended role→model mapping as an
+   always-applied rule. Run it once if you want explicit model routing.
 
 ## 3. The feature flow, step by step
 

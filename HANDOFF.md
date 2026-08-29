@@ -29,7 +29,7 @@ machines that swap weekly, centered on integrating **Kimi Code**:
 | `scripts/install-skills.mjs` | Copies `.agents/skills/` → `~/.dsh/skills/` (user root). |
 | `scripts/import-skills.mjs` | Imports third-party SKILL.md collections (used for poteto). |
 | `scripts/lib.mjs` | Shared helpers (dsh discovery, js-yaml/pi-ai resolution from the harness install). |
-| `.agents/skills/` | **35 vendored skills**: poteto's noodle collection (32) + `how` + `verify-atlas` + `poteto-mode` + `feature-pipeline` + `kimi-integration` + `machine-parity`. |
+| `.agents/skills/` | **65 vendored skills**: poteto's noodle collection (32) + poteto's pstack (34: 21 principles + workflow skills + poteto-mode, from `poteto/plugins#pstack`) + `how` + `verify-atlas` + `feature-pipeline` + `kimi-integration` + `machine-parity`. |
 | `vendor/` | Pinned tarballs: `@deepseek-ai/dsh-subagent-acp@0.1.1-rc.2`, `@agentclientprotocol/sdk@0.25.1` (SHA-256s in git history). |
 | `README.md` | Overview + quick start. |
 | `SETUP.md` | Per-machine setup; §4 subscription (4a `kimi-login` recommended); troubleshooting. |
@@ -52,7 +52,7 @@ machines that swap weekly, centered on integrating **Kimi Code**:
 - `~/.dsh/.credentials.yaml`: record `llm-pi-ai/kimi-coding` (kind grant,
   type oauth) — **independent credential**, auto-refreshes; verified working
   through the harness's pi-ai stack (real k3 request → "OK").
-- `~/.dsh/skills/`: 35 skills installed (user root).
+- `~/.dsh/skills/`: 65 skills installed (user root).
 - Kimi CLI `0.38.0` installed at `~/.kimi-code/bin/kimi`; **CLI login is
   DEAD** (see §5).
 

@@ -116,7 +116,7 @@ session; a loaded skill's instructions override generic guidance for that task.
 
 ### Skills in this repo (vendored, git-synced)
 
-`.agents/skills/` holds **35 skills** — the full poteto set (frozen at import
+`.agents/skills/` holds **65 skills** — poteto's noodle collection (32) **plus poteto's pstack** (34, from `poteto/plugins#pstack`; 21 engineering principles + workflow skills + poteto-mode), all frozen at import
 time) plus three harness-ops skills:
 
 | Skill | Purpose |

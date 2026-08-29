@@ -17,7 +17,7 @@ below so you never try to "sync" the wrong thing.
 | Setup script + docs + pinned vendor tarballs | ✅ yes (this repo) | `scripts/`, `vendor/`, `*.md` |
 | Token bridge script (subscription → harness) | ✅ yes (this repo) | `scripts/bridge-kimi-token.mjs` |
 | Independent login script | ✅ yes (this repo) | `scripts/kimi-login.mjs` |
-| All poteto skills (vendored) + starter skills | ✅ yes (this repo) | `.agents/skills/` (34 skills, auto-discovered in this repo's sessions) |
+| All poteto skills (vendored) + starter skills | ✅ yes (this repo) | `.agents/skills/` (65 skills: noodle 32 + pstack 34 + ours, auto-discovered in this repo's sessions) |
 | Skill installer | ✅ yes (this repo) | `scripts/install-skills.mjs` (`npm run skills:install`) |
 | Harness version (pin to `0.1.1-rc.2`) | ✅ yes — documented + enforced by the script | `SETUP.md` § 1 |
 | Profile patch (`cordis.patch.yml` kimi section) | ✅ yes — written by the script | `~/.dsh/profiles/web/cordis.patch.yml` |
@@ -128,8 +128,8 @@ Verified on this machine (2026-08-28); both machines should match:
   {provider: kimi-coding, model: k3}`; `llm-pi-ai.providers.kimi-coding: {}`.
 - **Credential** `~/.dsh/.credentials.yaml` — record `llm-pi-ai/kimi-coding`,
   kind `grant`, type `oauth` (per-machine; values differ, structure matches).
-- **Skills** — `.agents/skills/` holds the full vendored set (34 skills:
-  poteto's noodle collection + `how` + `verify-atlas` + `poteto-mode`, plus
+- **Skills** — `.agents/skills/` holds the full vendored set (65 skills:
+  poteto's noodle collection (32) + poteto's pstack (34, incl. 21 principles) + `how` + `verify-atlas` + `poteto-mode`, plus
   `kimi-integration` and `machine-parity`); synced via git; `~/.dsh/skills/`
   mirrors them per machine via `npm run skills:install`.
 

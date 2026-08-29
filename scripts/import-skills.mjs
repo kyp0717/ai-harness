@@ -145,17 +145,27 @@ function main() {
 
   for (const source of sources) {
     let root = source
-    if (/^(https?|git@|ssh):\/\//.test(source) || /\.git$/.test(source)) {
+    // Support `https://github.com/org/repo#subdir` to import one subtree of a repo.
+    let url = source
+    let subdir = ''
+    if (source.includes('#') && /^(https?|git@|ssh)/.test(source)) {
+      ;[url, subdir] = source.split('#')
+    }
+    if (/^(https?|git@|ssh):\/\//.test(url) || url.startsWith('git@') || /\.git$/.test(url)) {
       const tmp = join(tmpdir(), `skills-import-${process.pid}-${Date.now()}-${installed + skipped}`)
       mkdirSync(tmp, { recursive: true })
       tempDirs.push(tmp)
-      out.info(`cloning ${source} …`)
-      const r = spawnSync('git', ['clone', '--depth', '1', '--quiet', source, tmp], { stdio: ['ignore', 'pipe', 'pipe'] })
+      out.info(`cloning ${url} …`)
+      const r = spawnSync('git', ['clone', '--depth', '1', '--quiet', url, tmp], { stdio: ['ignore', 'pipe', 'pipe'] })
       if (r.status !== 0) {
-        out.warn(`clone failed for ${source}: ${(r.stderr ?? '').toString().trim().split('\n')[0]}`)
+        out.warn(`clone failed for ${url}: ${(r.stderr ?? '').toString().trim().split('\n')[0]}`)
         continue
       }
-      root = tmp
+      root = subdir ? join(tmp, subdir) : tmp
+      if (subdir && !existsSync(root)) {
+        out.warn(`subpath "${subdir}" not found in ${url}`)
+        continue
+      }
     }
 
     const found = []

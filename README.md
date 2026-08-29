@@ -14,7 +14,7 @@ orchestration** patterns.
 | `scripts/bridge-kimi-token.mjs` | **Idempotent** bridge: imports your Kimi Code CLI's *subscription* OAuth tokens into the harness credential store (shared lineage — prefer `kimi-login`). |
 | `scripts/install-skills.mjs` | Copies repo skills (`.agents/skills/`) into `~/.dsh/skills/` so they work in every workspace. |
 | `scripts/import-skills.mjs` | Imports third-party SKILL.md collections (poteto/noodle, poteto/how, etc.) into the user root, idempotently. |
-| `.agents/skills/` | 35 vendored skills: poteto's full set (noodle collection, `how`, `verify-atlas`, `poteto-mode`), `feature-pipeline` (delegation-first default), plus `kimi-integration` & `machine-parity`. Auto-discovered in this repo's sessions. |
+| `.agents/skills/` | 65 vendored skills: poteto's noodle collection (32) + poteto's pstack (34: 21 engineering principles, workflow skills, poteto-mode), `how`, `verify-atlas`, `feature-pipeline`, `kimi-integration`, `machine-parity`. Auto-discovered in this repo's sessions. |
 | `vendor/` | Pinned tarballs (with SHA-256 in git history) for offline install — no npm registry needed on the target machine. |
 | `SETUP.md` | Step-by-step for setting up **one** machine from scratch. |
 | `TWO-COMPUTER-WORKFLOW.md` | The weekly-swap procedure: what's synced, what's per-machine, the checklist, known-good snapshot. |
