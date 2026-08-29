@@ -129,20 +129,21 @@ globally with `npm run skills:install`.
 Skills are **model-agnostic** — any SKILL.md-based collection works unchanged
 on Kimi, DeepSeek, or any provider, and is universal across workspaces.
 
+This deployment's preferred set is **poteto's skills** (the `noodle`
+collection, `how`, and the verification-skill example):
+
 ```bash
-# Import a collection into the user root (~/.dsh/skills) — available everywhere
-npm run skills:import -- https://github.com/shiwenbin1617/pstack   # 44 skills
-npm run skills:import -- https://github.com/poteto/how             # poteto's "how"
-npm run skills:import -- https://github.com/poteto/verification-skill-example
-npm run skills:import -- --dest .agents/skills <url>               # or into the repo (git-synced)
+# Import poteto's collections into the user root (~/.dsh/skills) — available everywhere
+npm run skills:import:poteto
+npm run skills:import -- --dest .agents/skills <url>   # or into the repo (git-synced)
 ```
 
 | Collection | Format | Compatible? |
 |---|---|---|
-| [pstack](https://github.com/shiwenbin1617/pstack) (44 skills: architect, arena, blast-radius, 21 principles…) | `skills/<name>/SKILL.md` | ✅ direct |
-| [poteto](https://github.com/poteto) skills (`how`, `poteto-mode`, verification skills) | `SKILL.md` | ✅ direct |
-| [anthropics/skills](https://github.com/anthropics/skills) (pdf, docx, pptx, xlsx…) | `SKILL.md` | ✅ direct |
-| [obra/superpowers](https://github.com/obra/superpowers) | `SKILL.md` | ✅ direct |
+| [poteto/noodle](https://github.com/poteto/noodle) (36 skills: execute, plan, review, debugging, worktree, …) | `.agents/skills/<name>/SKILL.md` | ✅ direct |
+| [poteto/how](https://github.com/poteto/how) | `skills/how/SKILL.md` | ✅ direct |
+| [poteto/verification-skill-example](https://github.com/poteto/verification-skill-example) | `.cursor/skills/<name>/SKILL.md` | ✅ direct |
+| Any other SKILL.md collection (anthropics/skills, obra/superpowers…) | `SKILL.md` | ✅ direct |
 | Cursor rules (`.mdc` — `globs`/`alwaysApply` schema) | different schema | ⚠️ needs conversion (e.g. [conforme](https://github.com/maxgfr/conforme)); not yet in `import-skills.mjs` |
 
 The importer copies each skill's whole directory (SKILL.md + `references/` +

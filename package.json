@@ -15,7 +15,7 @@
     "skills:install": "node scripts/install-skills.mjs",
     "skills:dry": "node scripts/install-skills.mjs --dry-run",
     "skills:import": "node scripts/import-skills.mjs",
-    "skills:import:pstack": "node scripts/import-skills.mjs https://github.com/shiwenbin1617/pstack"
+    "skills:import:poteto": "node scripts/import-skills.mjs https://github.com/poteto/noodle https://github.com/poteto/how https://github.com/poteto/verification-skill-example"
   },
   "engines": {
     "node": ">=18"
