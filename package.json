@@ -13,7 +13,9 @@
     "bridge:dry": "node scripts/bridge-kimi-token.mjs --dry-run",
     "kimi-login": "node scripts/kimi-login.mjs",
     "skills:install": "node scripts/install-skills.mjs",
-    "skills:dry": "node scripts/install-skills.mjs --dry-run"
+    "skills:dry": "node scripts/install-skills.mjs --dry-run",
+    "skills:import": "node scripts/import-skills.mjs",
+    "skills:import:pstack": "node scripts/import-skills.mjs https://github.com/shiwenbin1617/pstack"
   },
   "engines": {
     "node": ">=18"

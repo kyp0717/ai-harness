@@ -124,6 +124,34 @@ session; a loaded skill's instructions override generic guidance for that task.
 Available in this repo's sessions automatically (`.agents/skills/`); install
 globally with `npm run skills:install`.
 
+### Importing third-party collections
+
+Skills are **model-agnostic** — any SKILL.md-based collection works unchanged
+on Kimi, DeepSeek, or any provider, and is universal across workspaces.
+
+```bash
+# Import a collection into the user root (~/.dsh/skills) — available everywhere
+npm run skills:import -- https://github.com/shiwenbin1617/pstack   # 44 skills
+npm run skills:import -- https://github.com/poteto/how             # poteto's "how"
+npm run skills:import -- https://github.com/poteto/verification-skill-example
+npm run skills:import -- --dest .agents/skills <url>               # or into the repo (git-synced)
+```
+
+| Collection | Format | Compatible? |
+|---|---|---|
+| [pstack](https://github.com/shiwenbin1617/pstack) (44 skills: architect, arena, blast-radius, 21 principles…) | `skills/<name>/SKILL.md` | ✅ direct |
+| [poteto](https://github.com/poteto) skills (`how`, `poteto-mode`, verification skills) | `SKILL.md` | ✅ direct |
+| [anthropics/skills](https://github.com/anthropics/skills) (pdf, docx, pptx, xlsx…) | `SKILL.md` | ✅ direct |
+| [obra/superpowers](https://github.com/obra/superpowers) | `SKILL.md` | ✅ direct |
+| Cursor rules (`.mdc` — `globs`/`alwaysApply` schema) | different schema | ⚠️ needs conversion (e.g. [conforme](https://github.com/maxgfr/conforme)); not yet in `import-skills.mjs` |
+
+The importer copies each skill's whole directory (SKILL.md + `references/` +
+assets), is idempotent, validates the frontmatter exactly like the harness
+(`name` kebab-case + `description`), and warns on name collisions
+(`--force` overwrites). It scans `skills/`, `.cursor/skills/`,
+`.claude/skills/`, `.agents/skills/`, `<name>/`, single-skill roots, and flat
+`*.md` files.
+
 ### Authoring workflow (recommended)
 
 1. Put the skill in `.agents/skills/<name>/SKILL.md` in this repo (synced).
