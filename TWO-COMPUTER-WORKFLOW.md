@@ -125,7 +125,9 @@ Verified on this machine (2026-08-28); both machines should match:
   `7a8e0b6a7547…d0970` of the vendored tarball) and
   `@agentclientprotocol/sdk@0.25.1` (sha256 `3c0a1f617167…8f9a1`).
 - **Settings** `~/.dsh/settings.yaml` — `agent-default-model:
-  {provider: kimi-coding, model: k3}`; `llm-pi-ai.providers.kimi-coding: {}`.
+  {provider: kimi-coding, model: k3}`; `llm-pi-ai.providers.kimi-coding: {}`;
+  `llm-pi-ai.providers.nvidia` (30-model free-tier profile, written by
+  `npm run setup`).
 - **Credential** `~/.dsh/.credentials.yaml` — record `llm-pi-ai/kimi-coding`,
   kind `grant`, type `oauth` (per-machine; values differ, structure matches).
 - **Skills** — `.agents/skills/` holds the full vendored set (65 skills:

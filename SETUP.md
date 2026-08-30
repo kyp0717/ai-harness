@@ -155,6 +155,24 @@ The stored refresh token was rejected by `auth.kimi.com`. Causes:
 Fix: run `npm run kimi-login` (preferred — independent credential), or
 `kimi login` followed by `npm run bridge`. No API key is involved.
 
+## 4b. NVIDIA free tier (build.nvidia.com)
+
+The harness ships NVIDIA as a built-in provider (`nvidia`, endpoint
+`https://integrate.api.nvidia.com/v1`); `npm run setup` now also writes a
+30-model free-tier profile into `settings.yaml`. To use:
+
+1. **Settings → API keys** → add `NVIDIA_API_KEY` (your build.nvidia.com key; per machine).
+2. **Settings → Models** → provider **NVIDIA (free tier)** → pick a model.
+3. New sessions can run on it.
+
+Notable free models include `moonshotai/kimi-k3` (**"Kimi K3 (NVIDIA free)"** —
+distinct from your subscription **`kimi-coding/k3`** "Kimi K3", 1M context on
+kimi.com), Llama 3.3/3.1/3.2, Nemotron 3/4, Gemma 3/4, GPT-OSS, GLM 5.2, MiniMax
+M3, Mistral, DeepSeek V4 (flash/pro). Embeddings/vision/safety/tool models are
+not listed — they cannot drive an agent. Context windows for the added entries
+are conservative defaults; tune `contextWindow`/`maxTokens` in
+`settings.yaml` per model if needed.
+
 ## Re-running (e.g. after a weekly swap, or after a harness upgrade)
 
 `npm run setup` again — it detects what is already in place and only changes

@@ -238,13 +238,60 @@ function writePreset(dshDir) {
   out.ok(`created ${PRESET_FILE} (copy of the standard preset + subagent_kimi tool)`)
 }
 
-// ── step 6: harness settings (default model + provider profile) ────────────
+// ── step 6: harness settings (default model + provider profiles) ───────────
+
+/**
+ * The NVIDIA (build.nvidia.com, free tier) provider profile: the 18 models
+ * from the installed pi-ai catalog plus the useful free chat models from the
+ * live NVIDIA API, incl. `moonshotai/kimi-k3` (NVIDIA's free Kimi K3 — kept
+ * distinct from the subscription `kimi-coding/k3`). Metadata for the extra
+ * entries is conservative; tune contextWindow/maxTokens per model if needed.
+ */
+const NVIDIA_PROFILE = {
+  displayName: 'NVIDIA (free tier)',
+  api: 'openai-completions',
+  baseURL: 'https://integrate.api.nvidia.com/v1',
+  apiKeyEnv: 'NVIDIA_API_KEY',
+  models: [
+    { id: 'meta/llama-3.1-70b-instruct', name: 'Llama 3.1 70B', contextWindow: 128000, maxTokens: 4096, input: ['text'] },
+    { id: 'meta/llama-3.1-8b-instruct', name: 'Llama 3.1 8B', contextWindow: 16000, maxTokens: 4096, input: ['text'] },
+    { id: 'meta/llama-3.2-11b-vision-instruct', name: 'Llama 3.2 11B Vision', contextWindow: 128000, maxTokens: 4096, input: ['text', 'image'] },
+    { id: 'meta/llama-3.2-90b-vision-instruct', name: 'Llama 3.2 90B Vision', contextWindow: 128000, maxTokens: 8192, input: ['text', 'image'] },
+    { id: 'meta/llama-3.3-70b-instruct', name: 'Llama 3.3 70B', contextWindow: 128000, maxTokens: 4096, input: ['text'] },
+    { id: 'minimaxai/minimax-m3', name: 'MiniMax M3', contextWindow: 1000000, maxTokens: 16384, input: ['text'] },
+    { id: 'mistralai/mistral-small-4-119b-2603', name: 'Mistral Small 4 119B', contextWindow: 128000, maxTokens: 8192, input: ['text'] },
+    { id: 'moonshotai/kimi-k2.6', name: 'Kimi K2.6 (NVIDIA free)', contextWindow: 262144, maxTokens: 262144, input: ['text'] },
+    { id: 'nvidia/nemotron-3-nano-30b-a3b', name: 'Nemotron 3 Nano 30B', contextWindow: 131072, maxTokens: 131072, input: ['text'] },
+    { id: 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning', name: 'Nemotron 3 Nano Omni 30B', contextWindow: 256000, maxTokens: 65536, input: ['text'] },
+    { id: 'nvidia/nemotron-3-super-120b-a12b', name: 'Nemotron 3 Super 120B', contextWindow: 262144, maxTokens: 262144, input: ['text'] },
+    { id: 'nvidia/nemotron-3-ultra-550b-a55b', name: 'Nemotron 3 Ultra 550B', contextWindow: 1000000, maxTokens: 65536, input: ['text'] },
+    { id: 'nvidia/nvidia-nemotron-nano-9b-v2', name: 'Nemotron Nano 9B v2', contextWindow: 131072, maxTokens: 131072, input: ['text'] },
+    { id: 'openai/gpt-oss-120b', name: 'GPT-OSS 120B', contextWindow: 128000, maxTokens: 8192, input: ['text'] },
+    { id: 'openai/gpt-oss-20b', name: 'GPT-OSS 20B', contextWindow: 131072, maxTokens: 32768, input: ['text'] },
+    { id: 'stepfun-ai/step-3.5-flash', name: 'Step 3.5 Flash', contextWindow: 256000, maxTokens: 16384, input: ['text'] },
+    { id: 'stepfun-ai/step-3.7-flash', name: 'Step 3.7 Flash', contextWindow: 256000, maxTokens: 16384, input: ['text'] },
+    { id: 'z-ai/glm-5.2', name: 'GLM 5.2', contextWindow: 1000000, maxTokens: 131072, input: ['text'] },
+    { id: 'moonshotai/kimi-k3', name: 'Kimi K3 (NVIDIA free)', contextWindow: 262144, maxTokens: 131072, input: ['text'] },
+    { id: 'deepseek-ai/deepseek-v4-flash-0731', name: 'DeepSeek V4 Flash', contextWindow: 131072, maxTokens: 16384, input: ['text'] },
+    { id: 'deepseek-ai/deepseek-v4-pro-0813', name: 'DeepSeek V4 Pro', contextWindow: 131072, maxTokens: 32768, input: ['text'] },
+    { id: 'google/gemma-3-12b-it', name: 'Gemma 3 12B', contextWindow: 131072, maxTokens: 8192, input: ['text'] },
+    { id: 'google/gemma-3-4b-it', name: 'Gemma 3 4B', contextWindow: 131072, maxTokens: 8192, input: ['text'] },
+    { id: 'google/gemma-4-31b-it', name: 'Gemma 4 31B', contextWindow: 131072, maxTokens: 16384, input: ['text'] },
+    { id: 'nvidia/llama-3.1-nemotron-70b-instruct', name: 'Llama 3.1 Nemotron 70B', contextWindow: 131072, maxTokens: 16384, input: ['text'] },
+    { id: 'nvidia/nemotron-4-340b-instruct', name: 'Nemotron 4 340B', contextWindow: 131072, maxTokens: 8192, input: ['text'] },
+    { id: 'nvidia/nemotron-3.5-lightning-30b-a3b', name: 'Nemotron 3.5 Lightning 30B', contextWindow: 131072, maxTokens: 16384, input: ['text'] },
+    { id: 'mistralai/mistral-large', name: 'Mistral Large', contextWindow: 131072, maxTokens: 8192, input: ['text'] },
+    { id: 'mistralai/mistral-large-2-instruct', name: 'Mistral Large 2', contextWindow: 131072, maxTokens: 8192, input: ['text'] },
+    { id: 'mistralai/mistral-nemotron', name: 'Mistral Nemotron', contextWindow: 131072, maxTokens: 8192, input: ['text'] },
+  ],
+}
 
 /**
  * Ensure the harness settings make this machine behave like the known-good
- * configuration: the `kimi-coding` provider profile exists and the default
- * agent model is `kimi-coding / k3` (Kimi K3, 1M context). Idempotent —
- * preserves every other key in settings.yaml.
+ * configuration: the `kimi-coding` provider profile exists, the `nvidia`
+ * free-tier profile exists, and the default agent model is
+ * `kimi-coding / k3` (Kimi K3, 1M context). Idempotent — preserves every
+ * other key in settings.yaml.
  */
 function writeSettings() {
   const settingsFile = join(DSH_HOME, 'settings.yaml')
@@ -257,11 +304,14 @@ function writeSettings() {
   }
   const next = structuredClone(doc)
 
-  // provider profile for the pi-ai route
-  if (!next['llm-pi-ai']?.providers?.['kimi-coding']) {
-    next['llm-pi-ai'] ??= {}
-    next['llm-pi-ai'].providers ??= {}
+  // provider profiles for the pi-ai routes
+  next['llm-pi-ai'] ??= {}
+  next['llm-pi-ai'].providers ??= {}
+  if (!next['llm-pi-ai'].providers['kimi-coding']) {
     next['llm-pi-ai'].providers['kimi-coding'] = {}
+  }
+  if (JSON.stringify(next['llm-pi-ai'].providers['nvidia']) !== JSON.stringify(NVIDIA_PROFILE)) {
+    next['llm-pi-ai'].providers['nvidia'] = NVIDIA_PROFILE
   }
 
   // default agent model
