@@ -168,10 +168,15 @@ The harness ships NVIDIA as a built-in provider (`nvidia`, endpoint
 Notable free models include `moonshotai/kimi-k3` (**"Kimi K3 (NVIDIA free)"** —
 distinct from your subscription **`kimi-coding/k3`** "Kimi K3", 1M context on
 kimi.com), Llama 3.3/3.1/3.2, Nemotron 3/4, Gemma 3/4, GPT-OSS, GLM 5.2, MiniMax
-M3, Mistral, DeepSeek V4 (flash/pro). Embeddings/vision/safety/tool models are
-not listed — they cannot drive an agent. Context windows for the added entries
-are conservative defaults; tune `contextWindow`/`maxTokens` in
-`settings.yaml` per model if needed.
+M3, Mistral, and DeepSeek V4 flash/pro — the last two are labeled
+**"DeepSeek V4 Flash (NVIDIA free)"** and **"DeepSeek V4 Pro (NVIDIA free)"** to
+tell them apart from the official DeepSeek API models (the pay tier, provider
+**DeepSeek**, models **DeepSeek-V4-Flash** / **DeepSeek-V4-Pro** / the vision
+exp). NVIDIA free-tier runs on your `NVIDIA_API_KEY` against build.nvidia.com;
+the official DeepSeek models run on `DEEPSEEK_API_KEY` against api.deepseek.com.
+Embeddings/vision/safety/tool models are not listed — they cannot drive an
+agent. Context windows for the added entries are conservative defaults; tune
+`contextWindow`/`maxTokens` in `settings.yaml` per model if needed.
 
 ## Re-running (e.g. after a weekly swap, or after a harness upgrade)
 
