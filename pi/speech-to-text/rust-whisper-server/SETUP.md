@@ -31,6 +31,14 @@ sudo apt install build-essential cmake clang libclang-dev pkg-config libssl-dev
 `cmake`, a C++ compiler, and `libclang` are needed because `whisper-rs-sys`
 compiles whisper.cpp from source and runs bindgen during the build.
 
+On a machine with an NVIDIA GPU (linden), also install the CUDA toolkit so
+whisper.cpp can build its CUDA backend:
+
+```bash
+sudo apt install nvidia-cuda-toolkit   # provides nvcc
+nvidia-smi                             # confirms the driver sees the card
+```
+
 Rust toolchain (1.97.0 was used originally, anything recent should work):
 
 ```bash
@@ -61,14 +69,27 @@ just place the new file next to the binary and update the filename in `main.rs`.
 
 ## Build and run
 
+Don't invoke cargo directly. `run.sh` picks the right backend for the
+machine it's on (hostname first, `nvidia-smi` probe on unknown hosts),
+builds into `target/<backend>/` if needed, and execs the server:
+
 ```bash
 cd rust-whisper-server
-cargo build --release
-./target/release/rust-whisper-server
+./run.sh
 ```
 
-First build takes a few minutes because it compiles whisper.cpp. The server
-prints "Rust Whisper Server running on http://0.0.0.0:10301" when ready.
+| Machine | Backend | Build command run.sh uses |
+|---|---|---|
+| woodlawn (no NVIDIA GPU) | `cpu` | `cargo build --release` |
+| linden (GTX 1070) | `cuda` | `cargo build --release --features cuda` |
+
+The GTX 1070 is a Pascal card (compute capability 6.1), so run.sh sets
+`CMAKE_CUDA_ARCHITECTURES=61` for the CUDA build. The first CUDA build takes
+a while since it compiles whisper.cpp's CUDA kernels.
+
+The server prints its backend at startup ("Loading GGML Whisper model
+(backend: cuda)..."), so check `server.log` or `nvidia-smi` while
+transcribing to confirm the GPU is actually in use.
 
 Test it:
 
@@ -103,7 +124,7 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=/home/USER/path/to/rust-whisper-server
-ExecStart=/home/USER/path/to/rust-whisper-server/target/release/rust-whisper-server
+ExecStart=/home/USER/path/to/rust-whisper-server/run.sh
 Restart=always
 RestartSec=2
 StandardOutput=append:/home/USER/path/to/rust-whisper-server/server.log
@@ -127,8 +148,12 @@ running before anyone logs in, enable lingering with
 
 ## Notes
 
-- `main.rs` hardcodes `params.set_n_threads(16)` for the original Threadripper
-  machine. Change that to match the new machine's core count before building.
+- CPU thread count comes from the `WHISPER_THREADS` environment variable
+  (default 16, tuned for woodlawn's Threadripper). Set
+  `Environment=WHISPER_THREADS=<n>` in the systemd unit on machines with
+  fewer cores. With the cuda backend the GPU does the heavy lifting and the
+  thread count matters less.
+- `WHISPER_USE_GPU=0` forces CPU mode on a CUDA build, for debugging.
 - The port (10301) is also hardcoded in `main.rs`. Change it there if it
   collides with something.
 - `whisper-rs` is pinned to 0.13.2 in `Cargo.lock`. Keep the lockfile to avoid

@@ -55,11 +55,12 @@ Full detail and troubleshooting: [`dsh/docs/SETUP.md`](../dsh/docs/SETUP.md).
 ### pi
 
 1. Install pi itself (see pi's own docs) and sign in / set provider keys.
-2. Build and start the whisper server, then register it as a systemd user
-   service. Full procedure:
+2. Build and start the whisper server via `run.sh` (it picks the `cpu` or
+   `cuda` backend by hostname; on linden the CUDA toolkit must be installed
+   first), then register it as a systemd user service. Full procedure:
    [`pi/speech-to-text/rust-whisper-server/SETUP.md`](../pi/speech-to-text/rust-whisper-server/SETUP.md).
-3. Adjust `set_n_threads()` in `main.rs` to the machine's core count before
-   building (see `MACHINES.md`).
+3. On machines with fewer cores than woodlawn, set `WHISPER_THREADS` in the
+   systemd unit (see `MACHINES.md`).
 
 Skills need no install step for pi: sessions inside this repo auto-discover
 `.agents/skills/`.
@@ -173,4 +174,4 @@ Outputs should match on both machines. Secrets differ, which is expected.
 | Bridge version mismatch on `npm run dsh:setup` | dsh must be `0.1.1-rc.2` on that machine. |
 | Skills missing in a session | `npm run skills:install`, then start a new session. |
 | Whisper server down after repo update | Paths moved 2026-09-03; reinstall the systemd unit from the whisper SETUP.md and `systemctl --user daemon-reload`. |
-| Whisper transcription slow on linden | `set_n_threads()` in `main.rs` still tuned for woodlawn; adjust and rebuild. |
+| Whisper transcription slow on linden | Check it built with the cuda backend: the startup line in `server.log` prints the backend, and `nvidia-smi` should show the process. Rebuild via `run.sh` if it says cpu. |

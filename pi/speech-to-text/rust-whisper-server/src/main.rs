@@ -14,10 +14,18 @@ struct AppState {
 
 #[tokio::main]
 async fn main() {
-    println!("Loading GGML Whisper model...");
-    
+    // The backend is chosen at build time by run.sh: --features cuda on
+    // NVIDIA machines (linden), default CPU build otherwise (woodlawn).
+    let backend = if cfg!(feature = "cuda") { "cuda" } else { "cpu" };
+    println!("Loading GGML Whisper model (backend: {backend})...");
+
     // 1. Initialize Whisper C++ context from local GGML model
-    let ctx_params = WhisperContextParameters::default();
+    let mut ctx_params = WhisperContextParameters::default();
+    // use_gpu defaults to the compiled backend; WHISPER_USE_GPU=0 forces CPU
+    // on a CUDA build (useful for debugging).
+    if let Ok(v) = std::env::var("WHISPER_USE_GPU") {
+        ctx_params.use_gpu(!matches!(v.as_str(), "0" | "false" | "no"));
+    }
     let ctx = WhisperContext::new_with_params("ggml-base.bin", ctx_params)
         .expect("Failed to load ggml-base.bin model file");
 
@@ -87,9 +95,15 @@ fn process_audio(ctx: &WhisperContext, bytes: Vec<u8>) -> Result<String, Box<dyn
         hound::SampleFormat::Float => reader.into_samples::<f32>().collect::<Result<Vec<f32>, _>>()?,
     };
 
-    // 2. Configure Whisper inference parameters
+    // 2. Configure Whisper inference parameters. Thread count is per-machine
+    // (see sync/MACHINES.md): 16 on woodlawn's Threadripper. With the cuda
+    // backend the GPU does the heavy lifting and threads matter less.
+    let n_threads: i32 = std::env::var("WHISPER_THREADS")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(16);
     let mut params = FullParams::new(SamplingStrategy::Greedy { best_of: 1 });
-    params.set_n_threads(16); // Target 16 CPU threads on Threadripper
+    params.set_n_threads(n_threads);
     params.set_print_special(false);
     params.set_print_progress(false);
     params.set_print_realtime(false);
