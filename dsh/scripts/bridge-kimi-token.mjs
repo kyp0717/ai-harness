@@ -15,7 +15,7 @@
  * subscription — no pay-as-you-go KIMI_API_KEY.
  *
  * Usage:
- *   node scripts/bridge-kimi-token.mjs [--dry-run] [--verify] [--kimi-credentials <path>]
+ *   node dsh/scripts/bridge-kimi-token.mjs [--dry-run] [--verify] [--kimi-credentials <path>]
  *
  * Safety notes (verified against auth.kimi.com):
  *   - The refresh-token reuse test passed, so the harness refreshing tokens in
@@ -221,13 +221,13 @@ async function main() {
     out.ok('CLI token is valid')
   } catch (error) {
     out.fail(error.message)
-    out.info('recommended: use `npm run kimi-login` instead — it signs the harness in with its own independent subscription credential (does not depend on the CLI login)')
+    out.info('recommended: use `npm run dsh:kimi-login` instead — it signs the harness in with its own independent subscription credential (does not depend on the CLI login)')
     return
   }
 
   const payload = oauthPayload(tokens)
   out.info(`access token expires ${new Date(payload.expires).toISOString()} — the harness refreshes automatically after that`)
-  out.warn('the harness and the CLI now SHARE one token lineage — if either refreshes and the server rotates, the other can break. Prefer `npm run kimi-login` for an independent harness credential.')
+  out.warn('the harness and the CLI now SHARE one token lineage — if either refreshes and the server rotates, the other can break. Prefer `npm run dsh:kimi-login` for an independent harness credential.')
 
   const doc = loadDocument(yaml)
   const current = doc.records[KIMI_RECORD_KEY]

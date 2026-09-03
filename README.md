@@ -1,51 +1,41 @@
 # ai-harness
 
-DeepSeek Harness (dsh) deployment configuration — the Kimi Code integration,
-the operator docs for keeping **two computers in identical configuration**
-(you swap between them weekly), plus starter **skills** and **agent
-orchestration** patterns.
+Deployment configuration for the two agent harnesses you run, kept in parity
+across two computers (woodlawn and linden) that swap weekly:
 
-## What's in this repo
+- **dsh** (DeepSeek Harness) with the Kimi Code integration: Kimi CLI as a
+  subagent via ACP, Kimi K3 (1M context) on your subscription as the main
+  model, NVIDIA free-tier profile.
+- **pi**, with a local whisper speech-to-text server (OpenAI-compatible
+  endpoint on port 10301) backing voice input.
+
+## Layout
 
 | Path | Purpose |
 |---|---|
-| `scripts/setup-kimi.mjs` | One-command, **idempotent** setup: installs the Kimi Code ACP bridge into the dsh `web` profile, patches the profile, creates the `kimi` agent preset. Run it on every machine, every time. |
-| `scripts/kimi-login.mjs` | **Interactive** device-code login: signs the harness into your Kimi subscription with its **own independent** credential (recommended over bridging). |
-| `scripts/bridge-kimi-token.mjs` | **Idempotent** bridge: imports your Kimi Code CLI's *subscription* OAuth tokens into the harness credential store (shared lineage — prefer `kimi-login`). |
-| `scripts/install-skills.mjs` | Copies repo skills (`.agents/skills/`) into `~/.dsh/skills/` so they work in every workspace. |
-| `scripts/import-skills.mjs` | Imports third-party SKILL.md collections (e.g. poteto/pstack) into the user root, idempotently. |
-| `.agents/skills/` | 30 vendored skills: poteto's pstack (trimmed to strict 2026-09-02) — 20 engineering principles, `poteto-mode`, and the workflow skills (`architect`, `arena`, `interrogate`, `tdd`, `why`, `how`, `show-me-your-work`, `unslop`, `setup-pstack`). Auto-discovered in this repo's sessions. |
-| `vendor/` | Pinned tarballs (with SHA-256 in git history) for offline install — no npm registry needed on the target machine. |
-| `SETUP.md` | Step-by-step for setting up **one** machine from scratch. |
-| `CLONE-TO-NEW-MACHINE.md` | **The consolidated runbook** for cloning this fully-configured harness onto another computer (fresh clone + weekly re-sync). |
-| `TWO-COMPUTER-WORKFLOW.md` | The weekly-swap procedure: what's synced, what's per-machine, the checklist, known-good snapshot. |
-| `ORCHESTRATION.md` | Building skills + orchestrating agents (subagents, kimi subagent, workflows, ralph). |
-| `POTETO-SKILLS-WORKFLOW.md` | **How to use poteto's pstack** — principles, `poteto-mode` playbooks, evidence discipline, per-project `brain/` setup. |
-| `KIMI-INTEGRATION.md` | The original deep-dive: how the integration works, the manual steps, the patch-syntax gotchas, troubleshooting. |
+| `dsh/scripts/` | Idempotent dsh setup: `setup-kimi.mjs` (bridge install, profile patch, preset, settings), `kimi-login.mjs` (subscription login), `bridge-kimi-token.mjs` (token import, fallback), `install-skills.mjs`, `import-skills.mjs`. |
+| `dsh/vendor/` | Pinned tarballs for offline install, SHA-256s in git history. |
+| `dsh/docs/` | dsh-specific docs: `SETUP.md` (one machine), `KIMI-INTEGRATION.md` (deep dive), `MODIFYING-DSH.md`, `ORCHESTRATION.md` (subagents, workflows, ralph). |
+| `pi/speech-to-text/` | Rust whisper server source + setup doc. Model and build artifacts stay local. |
+| `.agents/skills/` | 30 vendored skills (pstack-strict). pi auto-discovers them in this repo; `npm run skills:install` copies them to `~/.dsh/skills/`. |
+| `docs/` | Harness-agnostic docs: `POTETO-SKILLS-WORKFLOW.md` (using the pstack skills). |
+| `sync/` | Keeping woodlawn and linden identical: the swap runbook (`README.md`) and per-machine facts (`MACHINES.md`). |
+| `HANDOFF.md` | Session continuation brief. Read first in a new context window. |
 
 ## Quick start (one machine)
 
 ```bash
-# 0. Prerequisites on the machine
-node --version          # >= 18
-kimi --version          # Kimi Code CLI installed (kimi login optional for the CLI)
-dsh web                 # start the harness ONCE so the profile initializes, then stop it
-
-# 1. Get this repo
 git clone git@github.com:kyp0717/ai-harness.git && cd ai-harness
 
-# 2. Apply the Kimi integration (idempotent — safe to re-run)
-npm run setup
+# dsh
+npm run dsh:setup        # idempotent; safe to re-run
+npm run dsh:kimi-login   # per-machine subscription credential
+npm run skills:install   # repo skills → ~/.dsh/skills
 
-# 3. Main model on your Kimi SUBSCRIPTION (no API key) — independent credential
-npm run kimi-login      # prints URL + code; complete in the browser
-
-# 4. Optional: make the repo skills available in every workspace
-npm run skills:install
-
-# 5. Restart the harness GUI and verify (SETUP.md § Verify)
+# pi whisper server: see pi/speech-to-text/rust-whisper-server/SETUP.md
 ```
 
-See [`SETUP.md`](SETUP.md) for details and [`TWO-COMPUTER-WORKFLOW.md`](TWO-COMPUTER-WORKFLOW.md)
-for the weekly two-machine routine. For skills and agent orchestration, see
-[`ORCHESTRATION.md`](ORCHESTRATION.md).
+Full procedures: [`dsh/docs/SETUP.md`](dsh/docs/SETUP.md) for dsh,
+[`pi/speech-to-text/rust-whisper-server/SETUP.md`](pi/speech-to-text/rust-whisper-server/SETUP.md)
+for the whisper server, and [`sync/README.md`](sync/README.md) for the
+fresh-machine runbook and weekly swap.

@@ -84,7 +84,7 @@ explicitly with `/skill:<name>`.
 - **`poteto-mode` is user-invocable only** (`disable-model-invocation`).
 - The **`orchestrate` playbook** assumes Cursor cloud subagents (`Task` tool)
   which this harness does not have; multi-agent orchestration is a separate
-  project (see `ORCHESTRATION.md`).
+  project (see `../dsh/docs/ORCHESTRATION.md`).
 - Skills are discovered **per workspace**: this repo's sessions see them
   automatically; other projects can vendor the same folder (as ls-trader
   does) or install globally via `npm run skills:install`.

@@ -16,7 +16,7 @@
  * previous bridge setup — see the OAuth refresh troubleshooting in SETUP.md).
  *
  * Usage:
- *   node scripts/kimi-login.mjs
+ *   node dsh/scripts/kimi-login.mjs
  *
  * It prints a URL + code; open the URL in your browser (signed in with your
  * Kimi subscription account) and enter the code. The script polls until the

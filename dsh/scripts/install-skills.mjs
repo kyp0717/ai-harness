@@ -11,7 +11,7 @@
  * Idempotent: only rewrites a skill whose content changed.
  *
  * Usage:
- *   node scripts/install-skills.mjs [--dry-run]
+ *   node dsh/scripts/install-skills.mjs [--dry-run]
  */
 
 import { copyFileSync, existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs'
@@ -20,7 +20,7 @@ import { DSH_HOME, read } from './lib.mjs'
 
 const flags = { dryRun: process.argv.includes('--dry-run') }
 
-const REPO_ROOT = new URL('..', import.meta.url).pathname
+const REPO_ROOT = new URL('../..', import.meta.url).pathname
 const SOURCE_ROOTS = [join(REPO_ROOT, '.agents', 'skills'), join(REPO_ROOT, '.dsh', 'skills')]
 const USER_SKILL_DIR = join(DSH_HOME, 'skills')
 

@@ -1,124 +1,96 @@
 # HANDOFF.md — continuation brief (next session)
 
-**Read this first in a new context window.** Everything needed to continue
-lives here and in the docs this repo links to. Written 2026-08-28 (end of
-day), commit `0247906` is the last pushed state; `origin/main` is in sync.
+**Read this first in a new context window.** Updated 2026-09-03 after the repo
+restructure into `dsh/`, `pi/`, `sync/`, `docs/`.
 
 ---
 
 ## 1. What this project is
 
-`ai-harness` = the deployment config for **DeepSeek Harness (dsh)** on two
-machines that swap weekly, centered on integrating **Kimi Code**:
+`ai-harness` is the deployment config for **two agent harnesses** on two
+machines (woodlawn, linden) that swap weekly:
 
-- **Kimi Code CLI as a subagent** (`subagent_kimi` tool) via the harness's ACP
-  bridge.
-- **Kimi K3 (1M context) as the main agent model** using the user's **Kimi
-  monthly subscription** (no pay-as-you-go API key) — via an independent
-  OAuth device-code credential.
-- **Poteto's skills** vendored in-repo for delegation-first feature building.
-- A **two-machine parity** workflow with idempotent scripts.
+- **dsh** (DeepSeek Harness) with the Kimi Code integration: Kimi CLI as a
+  subagent (`subagent_kimi`) via ACP, Kimi K3 (1M context) on the user's
+  subscription as the main model, NVIDIA free-tier model profile.
+- **pi**, with a local whisper speech-to-text server (Rust + whisper-rs,
+  `ggml-base.bin`, OpenAI-compatible endpoint on `0.0.0.0:10301`) backing
+  voice input.
+- Poteto's pstack-strict skills (30) vendored in `.agents/skills/`, used by
+  both harnesses: pi auto-discovers them in this repo, dsh gets them via
+  `npm run skills:install`.
 
-## 2. Repo map (all committed & pushed)
+## 2. Repo layout (post-2026-09-03)
 
-| Path | What it is |
+| Path | Purpose |
 |---|---|
-| `scripts/setup-kimi.mjs` | Idempotent machine setup: ACP bridge install (from `vendor/`), profile patch, `kimi` preset, **settings.yaml** (default model `kimi-coding/k3`). 6 steps, self-verifying. |
-| `scripts/kimi-login.mjs` | Interactive device-code login → independent subscription credential in the harness store. **The recommended auth path.** |
-| `scripts/bridge-kimi-token.mjs` | Fallback: imports the CLI's token (shared lineage — fragile, warns). `--verify --model <id>` tests through pi-ai. |
-| `scripts/install-skills.mjs` | Copies `.agents/skills/` → `~/.dsh/skills/` (user root). |
-| `scripts/import-skills.mjs` | Imports third-party SKILL.md collections (used for poteto). |
-| `scripts/lib.mjs` | Shared helpers (dsh discovery, js-yaml/pi-ai resolution from the harness install). |
-| `.agents/skills/` | **65 vendored skills**: poteto's noodle collection (32) + poteto's pstack (34: 21 principles + workflow skills + poteto-mode, from `poteto/plugins#pstack`) + `how` + `verify-atlas` + `feature-pipeline` + `kimi-integration` + `machine-parity`. |
-| `vendor/` | Pinned tarballs: `@deepseek-ai/dsh-subagent-acp@0.1.1-rc.2`, `@agentclientprotocol/sdk@0.25.1` (SHA-256s in git history). |
-| `README.md` | Overview + quick start. |
-| `SETUP.md` | Per-machine setup; §4 subscription (4a `kimi-login` recommended); troubleshooting. |
-| `TWO-COMPUTER-WORKFLOW.md` | Weekly swap, config-source table ("where does the harness know?"), known-good snapshot, parity checks. |
-| `ORCHESTRATION.md` | Skills + agent orchestration (subagents, workflows, ralph). |
-| `POTETO-SKILLS-WORKFLOW.md` | **The feature-building how-to with poteto's skills** (delegation-first pipeline). |
-| `KIMI-INTEGRATION.md` | Original deep-dive + manual steps + patch-syntax gotchas. |
+| `dsh/scripts/` | `setup-kimi.mjs` (idempotent full dsh config), `kimi-login.mjs` (subscription login, recommended auth path), `bridge-kimi-token.mjs` (fallback, shared lineage), `install-skills.mjs`, `import-skills.mjs`, `lib.mjs` |
+| `dsh/vendor/` | Pinned tarballs: `@deepseek-ai/dsh-subagent-acp@0.1.1-rc.2`, `@agentclientprotocol/sdk@0.25.1` |
+| `dsh/docs/` | `SETUP.md`, `KIMI-INTEGRATION.md`, `MODIFYING-DSH.md`, `ORCHESTRATION.md` |
+| `pi/speech-to-text/rust-whisper-server/` | Whisper server source + SETUP.md; model, `target/`, logs are gitignored |
+| `sync/` | `README.md` (fresh-machine runbook + weekly swap + parity checks), `MACHINES.md` (per-machine facts) |
+| `docs/` | `POTETO-SKILLS-WORKFLOW.md` (harness-agnostic) |
 
-## 3. Current live state (this machine, verified)
+npm scripts: dsh ones carry a `dsh:` prefix (`npm run dsh:setup`,
+`npm run dsh:kimi-login`, `npm run dsh:bridge[:verify]`). Skills scripts stay
+unprefixed (`npm run skills:install`, `skills:import`).
 
-- dsh `0.1.1-rc.2`, web profile at `~/.dsh/profiles/web`; harness GUI running
-  on the host at `127.0.0.1:3080` (outside the agent sandbox).
-- `cordis.patch.yml`: `subagent-kimi` provider row (command
-  `/home/phage/.kimi-code/bin/kimi`, args `[acp]`, `permission: allow`,
-  loader `- insert:` form) + `agent-presets.default: kimi`.
-- `~/.dsh/.agent-presets/kimi/agent.cordis.yml`: standard preset + the
-  `subagent_kimi` tool row.
+## 3. Current live state (woodlawn, verified)
+
+- dsh `0.1.1-rc.2`, web profile at `~/.dsh/profiles/web`; GUI on
+  `127.0.0.1:3080`.
 - `~/.dsh/settings.yaml`: `agent-default-model: {provider: kimi-coding,
-  model: k3}`; `llm-pi-ai.providers.kimi-coding: {}`.
-- `~/.dsh/.credentials.yaml`: record `llm-pi-ai/kimi-coding` (kind grant,
-  type oauth) — **independent credential**, auto-refreshes; verified working
-  through the harness's pi-ai stack (real k3 request → "OK").
-- `~/.dsh/skills/`: 65 skills installed (user root).
-- Kimi CLI `0.38.0` installed at `~/.kimi-code/bin/kimi`; **CLI login is
-  DEAD** (see §5).
+  model: k3}`; kimi-coding + NVIDIA provider profiles.
+- `~/.dsh/.credentials.yaml`: independent subscription credential
+  (`llm-pi-ai/kimi-coding`, kind grant), verified working.
+- `~/.dsh/skills/`: 30 skills installed (pstack-strict set).
+- Kimi CLI `0.38.0` at `~/.kimi-code/bin/kimi`; CLI login was DEAD as of
+  2026-08-28 (shared-lineage incident), re-auth is a user action.
+- **rust-whisper-server**: systemd user service, active, port 10301, unit at
+  `~/.config/systemd/user/rust-whisper-server.service`, updated 2026-09-03
+  for the `pi/` move and verified healthy after restart.
 
-## 4. Pending / next steps (in priority order)
+## 4. Pending / next steps
 
-1. **[User action] Restart the harness GUI** (`dsh web`) — then in a NEW
-   session confirm: tool catalog has `subagent_kimi`, and the model is
-   `kimi-coding / k3`. This is the **only unverified end-to-end step**
-   (the earlier k3 session's "OAuth refresh failed" was fixed by the
-   independent credential; a restart + new session is the proof).
-2. **Set up machine B** (the other computer): `git clone` (or pull) →
-   `npm run setup` → `npm run kimi-login` → `npm run skills:install` →
-   restart → run the parity checks in `TWO-COMPUTER-WORKFLOW.md`.
-3. **Try pstack for real**: pick a task in one of the user's apps
-   (`ls-trader`, `kadenx-trading`, `tradedeck-cpp`, `kadenx-voice`) and say
-   *"use poteto-mode: <task>"* — the mode matches a playbook (feature,
-   bug-fix, investigation, …) and pulls in principles, `interrogate`, and
-   evidence discipline as steps fire. One-time per project: seed
-   `brain/principles/` from the `principle-*` skills (see
-   `POTETO-SKILLS-WORKFLOW.md` §2; ls-trader already has it).
-4. **Re-auth the CLI** (`kimi login` in a terminal, user action) — needed for
-   the `subagent_kimi` child and terminal use; independent of the harness
-   credential.
+1. **Set up linden** (arrives week of 2026-09-08): follow `sync/README.md`
+   (fresh machine section). Adjust `set_n_threads()` in the whisper `main.rs`
+   to linden's cores before building. Transfer or re-download
+   `ggml-base.bin`.
+2. **Fill in `sync/MACHINES.md`** for linden once the hardware is known.
+3. **Re-auth the Kimi CLI** (`kimi login`, user action) for `subagent_kimi`.
+4. **Try pstack for real** on a user project: *"use poteto-mode: <task>"*.
+   See `docs/POTETO-SKILLS-WORKFLOW.md`.
 
 ## 5. Known issues / caveats
 
-- **CLI login dead**: the shared-token-lineage incident (harness + CLI
-  sharing one refresh token) burned both copies. Fix = `kimi login` (CLI) and
-  `npm run kimi-login` (harness, already done). Harness credential is now
-  independent — this cannot recur via the recommended path.
-- **Settings → Models shows an API-key field for `kimi-coding`** — leave it
-  empty; the bridged/独立 credential is what's used.
 - **Patch syntax**: new rows in `cordis.patch.yml` must use `- insert:`
-  blocks (bare `- id:` rows are overrides and silently don't mount).
-- **Pstack originated in poteto's Noodle ecosystem** (`brain/`, `noodle
-  worktree`, stage events). Noodle is not installed in this harness; pstack's
-  judgment skills don't depend on it, but playbooks that name missing skills
-  (`swarm`, `recall`, …) are adapted inline. See
-  `POTETO-SKILLS-WORKFLOW.md` § 4.
+  blocks; bare `- id:` rows silently don't mount.
+- **Settings → Models shows an API-key field for `kimi-coding`**: leave it
+  empty; the OAuth credential is what's used.
+- **Pstack came from poteto's Noodle ecosystem**: Noodle is not installed;
+  playbooks naming missing skills (`swarm`, `recall`) are adapted inline
+  (see `docs/POTETO-SKILLS-WORKFLOW.md` § 4).
 - **`poteto-mode` is user-invocable only** (`disable-model-invocation`).
-- **Sandbox facts for the agent** (next session): bash runs in a bubblewrap
-  sandbox — `/tmp` is wiped per call, `~/.dsh` is read-only **without**
-  `sandbox_permissions: danger-full-access` escalation, host processes (the
-  GUI) are not visible, and `git push` needs
+- **Whisper input format**: WAV, 16 kHz, mono; the server does not resample.
+- **Sandbox facts for the agent**: bash runs in a bubblewrap sandbox;
+  `/tmp` is wiped per call, `~/.dsh` is read-only without
+  `sandbox_permissions: danger-full-access`, host processes are not visible,
+  and `git push` needs
   `GIT_SSH_COMMAND="ssh -F /dev/null -o StrictHostKeyChecking=accept-new -i $HOME/.ssh/id_ed25519"`.
 
-## 6. Cheat sheet (commands)
+## 6. Cheat sheet
 
 ```bash
-npm run setup            # full machine config (bridge, patch, preset, settings) — idempotent
-npm run setup:dry        # preview
-npm run kimi-login       # independent subscription credential (device-code) — per machine
-npm run bridge[:verify]  # fallback: import CLI token (shared lineage)
-npm run skills:install   # repo skills → ~/.dsh/skills
-npm run skills:import:poteto   # refresh poteto set from upstream
-dsh --profile web --dump-config | grep -A6 subagent-kimi   # parity check
+npm run dsh:setup            # full dsh config, idempotent
+npm run dsh:setup:dry        # preview
+npm run dsh:kimi-login       # subscription credential, per machine
+npm run dsh:bridge[:verify]  # fallback: import CLI token
+npm run skills:install       # repo skills → ~/.dsh/skills
+dsh --profile web --dump-config | grep -A6 subagent-kimi   # dsh parity check
+systemctl --user status rust-whisper-server                # whisper status
+curl localhost:10301/health                                # whisper parity check
 ```
-
-## 7. Open offers (not yet taken)
-
-- Cursor `.mdc` → SKILL.md converter in `import-skills.mjs`.
-- Bootstrap `brain/principles.md` for the user's projects from poteto's
-  `principle-*` playbooks.
-- A real `plan`-skill run on a chosen feature (pending user picking one).
 
 ---
 
-*Next session: read `POTETO-SKILLS-WORKFLOW.md` and `TWO-COMPUTER-WORKFLOW.md`
-before acting on §4. Ask the user which pending item to start with.*
+*Next session: read `sync/README.md` and `docs/POTETO-SKILLS-WORKFLOW.md`.*

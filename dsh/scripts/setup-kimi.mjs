@@ -5,9 +5,9 @@
  * week) — it only changes what is missing or out of date.
  *
  * Usage:
- *   node scripts/setup-kimi.mjs [--dry-run] [--no-default-preset] [--verbose]
+ *   node dsh/scripts/setup-kimi.mjs [--dry-run] [--no-default-preset] [--verbose]
  *
- * What it does (mirrors the manual steps in KIMI-INTEGRATION.md):
+ * What it does (mirrors the manual steps in dsh/docs/KIMI-INTEGRATION.md):
  *   1. Locates the Kimi Code CLI binary (PATH, then ~/.kimi-code/bin/kimi).
  *   2. Locates the dsh harness install and reads its version.
  *   3. Installs the version-matched ACP bridge
@@ -23,7 +23,7 @@
  *   6. Prints next steps (restart the GUI, verify, per-machine secrets).
  *
  * Secrets are NEVER touched: Kimi credentials/oauth and provider API keys stay
- * machine-local (see SETUP.md § "Per-machine items").
+ * machine-local (see dsh/docs/SETUP.md § "Per-machine items").
  *
  * Requires: node >= 18, tar (POSIX), and for the npm-registry fallback also
  * npm. POSIX paths are assumed (both of your machines run Linux).
@@ -219,7 +219,7 @@ function standardPresetSource(dshDir) {
 function writePreset(dshDir) {
   const src = standardPresetSource(dshDir)
   if (!src) {
-    out.fail(`cannot find the shipped standard preset under ${dshDir}/config/agent-presets — unexpected harness layout; see KIMI-INTEGRATION.md for the manual steps`)
+    out.fail(`cannot find the shipped standard preset under ${dshDir}/config/agent-presets — unexpected harness layout; see dsh/docs/KIMI-INTEGRATION.md for the manual steps`)
     return
   }
   if (read(PRESET_FILE)?.includes('tool-subagent-kimi')) {
@@ -229,7 +229,7 @@ function writePreset(dshDir) {
   const marker = '\n    - id: workflow-worker-thread'
   const base = read(src)
   if (!base.includes(marker)) {
-    out.fail(`the standard preset ${src} lacks the delegation-group marker "- id: workflow-worker-thread" — cannot auto-insert the tool row; see KIMI-INTEGRATION.md`)
+    out.fail(`the standard preset ${src} lacks the delegation-group marker "- id: workflow-worker-thread" — cannot auto-insert the tool row; see dsh/docs/KIMI-INTEGRATION.md`)
     return
   }
   if (flags.dryRun) { out.info(`(dry-run) would write ${PRESET_FILE} (from ${src})`); return }
@@ -401,7 +401,7 @@ function main() {
   console.log('  1. Restart the harness GUI (stop `dsh web`, start it again).')
   console.log('  2. Start a NEW session (it uses the `kimi` preset, default model')
   console.log('     kimi-coding/k3) and confirm `subagent_kimi` is in the tool catalog.')
-  console.log('  3. Per-machine secrets (never committed): run `npm run kimi-login`')
+  console.log('  3. Per-machine secrets (never committed): run `npm run dsh:kimi-login`')
   console.log('     (subscription credential) and set any API keys in the GUI.')
 }
 

@@ -68,7 +68,7 @@ change rendering.
 
 The intended extension seam. A YAML array of loader operations applied on top
 of the shipped bundles: `- insert:` new plugin rows, `- id:` overrides config,
-disables. This is exactly how `scripts/setup-kimi.mjs` mounts the Kimi ACP
+disables. This is exactly how `dsh/scripts/setup-kimi.mjs` mounts the Kimi ACP
 bridge. Powerful for *adding/overriding plugins and config*, but it still can't
 reach inside a plugin's React render.
 
@@ -151,6 +151,6 @@ Two "DeepSeek" providers exist and their display names collided:
 
 Fix applied (settings-only): renamed the NVIDIA free-tier DeepSeek models to
 `DeepSeek V4 Flash (NVIDIA free)` and `DeepSeek V4 Pro (NVIDIA free)` in both
-`scripts/setup-kimi.mjs` and `~/.dsh/settings.yaml`, and documented the
+`dsh/scripts/setup-kimi.mjs` and `~/.dsh/settings.yaml`, and documented the
 free-vs-paid distinction in `SETUP.md`. Default model at the time:
 `deepseek-official / deepseek-v4-pro` (pay tier).

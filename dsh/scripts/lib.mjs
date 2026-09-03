@@ -18,9 +18,11 @@ import { fileURLToPath } from 'node:url'
 // ── constants ───────────────────────────────────────────────────────────────
 
 export const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url))
-export const REPO_ROOT = resolve(SCRIPT_DIR, '..')
-export const VENDOR_DIR = join(REPO_ROOT, 'vendor')
-export const NPM_CACHE_DIR = join(REPO_ROOT, '.npm-cache')
+// dsh-specific files live under <repo>/dsh/; the repo root is one level up.
+export const DSH_DIR = resolve(SCRIPT_DIR, '..')
+export const REPO_ROOT = resolve(DSH_DIR, '..')
+export const VENDOR_DIR = join(DSH_DIR, 'vendor')
+export const NPM_CACHE_DIR = join(DSH_DIR, '.npm-cache')
 
 export const HOME = homedir()
 export const DSH_HOME = process.env.DSH_HOME || join(HOME, '.dsh')

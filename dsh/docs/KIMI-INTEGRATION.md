@@ -9,12 +9,12 @@ how to use **Kimi K2/K3 models** as the harness's main agent model.
 > parity** — use the one-command, idempotent script:
 >
 > ```bash
-> npm run setup            # or: node scripts/setup-kimi.mjs
-> npm run setup:dry        # preview without writing
+> npm run dsh:setup            # or: node dsh/scripts/setup-kimi.mjs
+> npm run dsh:setup:dry        # preview without writing
 > ```
 >
 > See [`SETUP.md`](SETUP.md) (one machine) and
-> [`TWO-COMPUTER-WORKFLOW.md`](TWO-COMPUTER-WORKFLOW.md) (weekly swap routine).
+> [`sync/README.md`](../../sync/README.md) (weekly swap routine).
 
 This document was written against a verified setup:
 
@@ -297,8 +297,8 @@ pi-ai catalog — no code changes required.
 
 The `kimi-coding` provider also ships the subscription OAuth flow ("Sign in with
 Kimi Code" — the same `auth.kimi.com` device login and client id the CLI uses),
-but this dsh build exposes no GUI button or command to start it. `npm run bridge`
-(`scripts/bridge-kimi-token.mjs`) imports the OAuth tokens your CLI already
+but this dsh build exposes no GUI button or command to start it. `npm run dsh:bridge`
+(`dsh/scripts/bridge-kimi-token.mjs`) imports the OAuth tokens your CLI already
 holds (from `kimi login`) into the harness credential store under
 `llm-pi-ai/kimi-coding` (kind `grant`), so the harness authenticates to
 `api.kimi.com/coding` with your **monthly subscription** — verified end-to-end

@@ -121,7 +121,7 @@ the 20 engineering principles + `poteto-mode` (style + playbook routing) + the
 workflow skills (`architect`, `arena`, `interrogate`, `tdd`, `why`, `how`,
 `show-me-your-work`, `unslop`, `setup-pstack`). The noodle stage machinery,
 third-party packs, harness-ops skills, and `verify-atlas` were removed; see
-`POTETO-SKILLS-WORKFLOW.md`.
+`../../docs/POTETO-SKILLS-WORKFLOW.md`.
 
 | Skill group | Purpose |
 |---|---|
@@ -178,5 +178,5 @@ assets), is idempotent, validates the frontmatter exactly like the harness
 - Use `subagent_fork` for "review what we just did" loops so the child has
   context without re-pasting.
 
-See `SETUP.md` (per machine), `TWO-COMPUTER-WORKFLOW.md` (weekly swap), and
+See `SETUP.md` (per machine), `../../sync/README.md` (weekly swap), and
 `KIMI-INTEGRATION.md` (deep dive) for the deployment side.

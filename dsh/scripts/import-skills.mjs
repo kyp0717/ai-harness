@@ -18,7 +18,7 @@
  * content is kept-and-warned unless --force.
  *
  * Usage:
- *   node scripts/import-skills.mjs [--dest <dir>] [--dry-run] [--force] <git-url-or-dir>...
+ *   node dsh/scripts/import-skills.mjs [--dest <dir>] [--dry-run] [--force] <git-url-or-dir>...
  *
  * Default dest: $DSH_HOME/skills (the user root — available in every workspace).
  * After importing, restart the harness GUI so new sessions see the catalog.

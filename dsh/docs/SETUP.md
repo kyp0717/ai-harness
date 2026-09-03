@@ -37,17 +37,17 @@ it fails loudly if that bridge version does not exist on npm.
 ```bash
 git clone git@github.com:kyp0717/ai-harness.git && cd ai-harness
 
-npm run setup:dry    # optional: preview what it will do (writes nothing)
-npm run setup        # apply
+npm run dsh:setup:dry    # optional: preview what it will do (writes nothing)
+npm run dsh:setup        # apply
 ```
 
-What it does (see the header of `scripts/setup-kimi.mjs` for the full map):
+What it does (see the header of `dsh/scripts/setup-kimi.mjs` for the full map):
 
 1. Locates the Kimi CLI binary.
 2. Locates the dsh install and reads its version.
 3. Installs `@deepseek-ai/dsh-subagent-acp@<harness-version>` and
    `@agentclientprotocol/sdk@0.25.1` into `~/.dsh/profiles/node_modules`
-   (from the pinned `vendor/` tarballs; falls back to the npm registry).
+   (from the pinned `dsh/vendor/` tarballs; falls back to the npm registry).
 4. Patches `~/.dsh/profiles/web/cordis.patch.yml`:
    - inserts the `kimi` ACP provider row (loader `- insert:` form), and
    - sets the default agent preset to `kimi`.
@@ -59,9 +59,9 @@ What it does (see the header of `scripts/setup-kimi.mjs` for the full map):
    - the `llm-pi-ai.providers.kimi-coding` provider profile.
 7. Verifies the bridge imports from the profile's module resolution path.
 
-After `npm run setup`, the machine's harness *configuration* is identical to
+After `npm run dsh:setup`, the machine's harness *configuration* is identical to
 the known-good one; the only per-machine step left is the subscription
-credential (`npm run kimi-login`).
+credential (`npm run dsh:kimi-login`).
 
 ## 3. Restart and verify
 
@@ -102,18 +102,18 @@ subscription account the CLI uses** ("Sign in with Kimi Code" OAuth), but this
 dsh build has no GUI button or command that starts that flow. Two supported
 ways to give the harness the subscription credential:
 
-### 4a. Recommended: independent harness login (`npm run kimi-login`)
+### 4a. Recommended: independent harness login (`npm run dsh:kimi-login`)
 
 Runs the device-code flow directly and stores the credential in the harness
 store under `llm-pi-ai/kimi-coding`. **The harness gets its OWN token lineage,
 so its background refreshes can never invalidate your CLI's login.**
 
 ```bash
-npm run kimi-login
+npm run dsh:kimi-login
 # prints a URL + code → open the URL, sign in with your subscription account, enter the code
 ```
 
-### 4b. Alternative: bridge the CLI's token (`npm run bridge`)
+### 4b. Alternative: bridge the CLI's token (`npm run dsh:bridge`)
 
 Imports the OAuth tokens your CLI already holds (from `kimi login`) into the
 harness store. ⚠️ **The harness and CLI then SHARE one token lineage** — the
@@ -123,8 +123,8 @@ error; see troubleshooting below). Prefer 4a.
 
 ```bash
 kimi login            # once per machine
-npm run bridge        # imports + validates the CLI token
-npm run bridge:verify # optional: make one small request to prove it works
+npm run dsh:bridge        # imports + validates the CLI token
+npm run dsh:bridge:verify # optional: make one small request to prove it works
 ```
 
 Verified properties (both paths):
@@ -152,13 +152,13 @@ The stored refresh token was rejected by `auth.kimi.com`. Causes:
   refresh token.
 - Or the token genuinely expired/revoked.
 
-Fix: run `npm run kimi-login` (preferred — independent credential), or
-`kimi login` followed by `npm run bridge`. No API key is involved.
+Fix: run `npm run dsh:kimi-login` (preferred — independent credential), or
+`kimi login` followed by `npm run dsh:bridge`. No API key is involved.
 
 ## 4b. NVIDIA free tier (build.nvidia.com)
 
 The harness ships NVIDIA as a built-in provider (`nvidia`, endpoint
-`https://integrate.api.nvidia.com/v1`); `npm run setup` now also writes a
+`https://integrate.api.nvidia.com/v1`); `npm run dsh:setup` now also writes a
 30-model free-tier profile into `settings.yaml`. To use:
 
 1. **Settings → API keys** → add `NVIDIA_API_KEY` (your build.nvidia.com key; per machine).
@@ -180,10 +180,10 @@ agent. Context windows for the added entries are conservative defaults; tune
 
 ## Re-running (e.g. after a weekly swap, or after a harness upgrade)
 
-`npm run setup` again — it detects what is already in place and only changes
+`npm run dsh:setup` again — it detects what is already in place and only changes
 what is missing or out of date. After any re-run: restart the GUI. The
-subscription credential is per-machine: run `npm run kimi-login` (or `kimi
-login` + `npm run bridge`) on a machine whenever you re-authenticate there.
+subscription credential is per-machine: run `npm run dsh:kimi-login` (or `kimi
+login` + `npm run dsh:bridge`) on a machine whenever you re-authenticate there.
 Skills: `npm run skills:install` (idempotent) refreshes `~/.dsh/skills/` from
 the repo's `.agents/skills/`.
 
