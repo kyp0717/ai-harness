@@ -35,7 +35,7 @@ git clone ai-harness  →  npm run setup (writes ALL harness config)
 | `~/.dsh/.agent-presets/kimi/agent.cordis.yml` (kimi preset + `subagent_kimi` tool) | `scripts/setup-kimi.mjs` | `npm run setup` |
 | `~/.dsh/profiles/node_modules/@deepseek-ai/dsh-subagent-acp` + `@agentclientprotocol/sdk` | `vendor/*.tgz` (pinned) | `npm run setup` |
 | `~/.dsh/settings.yaml` — `kimi-coding` profile, **NVIDIA 30-model profile**, default model `kimi-coding/k3` | `scripts/setup-kimi.mjs` | `npm run setup` |
-| `~/.dsh/skills/*` — all 65 skills (poteto pstack + noodle + ours) | `.agents/skills/` (vendored) | `npm run skills:install` |
+| `~/.dsh/skills/*` — all 30 skills (pstack-strict) | `.agents/skills/` (vendored) | `npm run skills:install` |
 | Subscription credential (`llm-pi-ai/kimi-coding`) | **secret — not in repo** | `npm run kimi-login` (per machine) |
 | API keys (`NVIDIA_API_KEY`, `DEEPSEEK_API_KEY`, …) | **secret — not in repo** | GUI → Settings → API keys |
 | The dsh harness binary | **not in repo** (pinned install) | `npx @deepseek-ai/dsh@0.1.1-rc.2` |

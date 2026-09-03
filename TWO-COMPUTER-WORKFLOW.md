@@ -130,10 +130,11 @@ Verified on this machine (2026-08-28); both machines should match:
   `npm run setup`).
 - **Credential** `~/.dsh/.credentials.yaml` — record `llm-pi-ai/kimi-coding`,
   kind `grant`, type `oauth` (per-machine; values differ, structure matches).
-- **Skills** — `.agents/skills/` holds the full vendored set (65 skills:
-  poteto's noodle collection (32) + poteto's pstack (34, incl. 21 principles) + `how` + `verify-atlas` + `poteto-mode`, plus
-  `kimi-integration` and `machine-parity`); synced via git; `~/.dsh/skills/`
-  mirrors them per machine via `npm run skills:install`.
+- **Skills** — `.agents/skills/` holds the vendored pstack-strict set (30
+  skills: 20 engineering principles + `poteto-mode` + workflow skills); the
+  noodle collection, third-party packs, and harness-ops skills were removed
+  2026-09-02. Synced via git; `~/.dsh/skills/` mirrors them per machine via
+  `npm run skills:install`.
 
 ## Parity check (both machines)
 

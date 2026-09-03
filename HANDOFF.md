@@ -66,12 +66,13 @@ machines that swap weekly, centered on integrating **Kimi Code**:
 2. **Set up machine B** (the other computer): `git clone` (or pull) →
    `npm run setup` → `npm run kimi-login` → `npm run skills:install` →
    restart → run the parity checks in `TWO-COMPUTER-WORKFLOW.md`.
-3. **Try delegation-first feature building for real**: pick a feature in one
-   of the user's apps (`ls-trader`, `kadenx-trading`, `tradedeck-cpp`,
-   `kadenx-voice`) and run the pipeline — say "build feature X" (the
-   `feature-pipeline` skill auto-engages: plan → review → execute → review).
-   One-time per project: `mkdir -p brain/plans && echo "# Principles" >
-   brain/principles.md`.
+3. **Try pstack for real**: pick a task in one of the user's apps
+   (`ls-trader`, `kadenx-trading`, `tradedeck-cpp`, `kadenx-voice`) and say
+   *"use poteto-mode: <task>"* — the mode matches a playbook (feature,
+   bug-fix, investigation, …) and pulls in principles, `interrogate`, and
+   evidence discipline as steps fire. One-time per project: seed
+   `brain/principles/` from the `principle-*` skills (see
+   `POTETO-SKILLS-WORKFLOW.md` §2; ls-trader already has it).
 4. **Re-auth the CLI** (`kimi login` in a terminal, user action) — needed for
    the `subagent_kimi` child and terminal use; independent of the harness
    credential.
@@ -86,10 +87,11 @@ machines that swap weekly, centered on integrating **Kimi Code**:
   empty; the bridged/独立 credential is what's used.
 - **Patch syntax**: new rows in `cordis.patch.yml` must use `- insert:`
   blocks (bare `- id:` rows are overrides and silently don't mount).
-- **Poteto skills assume Noodle conventions** (`brain/`, `noodle worktree`,
-  stage events). In this harness the agent adapts: `git worktree`,
-  `subagent`, `ask_user_question`, `todo_write`. See
-  `POTETO-SKILLS-WORKFLOW.md` § 6.
+- **Pstack originated in poteto's Noodle ecosystem** (`brain/`, `noodle
+  worktree`, stage events). Noodle is not installed in this harness; pstack's
+  judgment skills don't depend on it, but playbooks that name missing skills
+  (`swarm`, `recall`, …) are adapted inline. See
+  `POTETO-SKILLS-WORKFLOW.md` § 4.
 - **`poteto-mode` is user-invocable only** (`disable-model-invocation`).
 - **Sandbox facts for the agent** (next session): bash runs in a bubblewrap
   sandbox — `/tmp` is wiped per call, `~/.dsh` is read-only **without**

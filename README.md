@@ -13,14 +13,14 @@ orchestration** patterns.
 | `scripts/kimi-login.mjs` | **Interactive** device-code login: signs the harness into your Kimi subscription with its **own independent** credential (recommended over bridging). |
 | `scripts/bridge-kimi-token.mjs` | **Idempotent** bridge: imports your Kimi Code CLI's *subscription* OAuth tokens into the harness credential store (shared lineage — prefer `kimi-login`). |
 | `scripts/install-skills.mjs` | Copies repo skills (`.agents/skills/`) into `~/.dsh/skills/` so they work in every workspace. |
-| `scripts/import-skills.mjs` | Imports third-party SKILL.md collections (poteto/noodle, poteto/how, etc.) into the user root, idempotently. |
-| `.agents/skills/` | 65 vendored skills: poteto's noodle collection (32) + poteto's pstack (34: 21 engineering principles, workflow skills, poteto-mode), `how`, `verify-atlas`, `feature-pipeline`, `kimi-integration`, `machine-parity`. Auto-discovered in this repo's sessions. |
+| `scripts/import-skills.mjs` | Imports third-party SKILL.md collections (e.g. poteto/pstack) into the user root, idempotently. |
+| `.agents/skills/` | 30 vendored skills: poteto's pstack (trimmed to strict 2026-09-02) — 20 engineering principles, `poteto-mode`, and the workflow skills (`architect`, `arena`, `interrogate`, `tdd`, `why`, `how`, `show-me-your-work`, `unslop`, `setup-pstack`). Auto-discovered in this repo's sessions. |
 | `vendor/` | Pinned tarballs (with SHA-256 in git history) for offline install — no npm registry needed on the target machine. |
 | `SETUP.md` | Step-by-step for setting up **one** machine from scratch. |
 | `CLONE-TO-NEW-MACHINE.md` | **The consolidated runbook** for cloning this fully-configured harness onto another computer (fresh clone + weekly re-sync). |
 | `TWO-COMPUTER-WORKFLOW.md` | The weekly-swap procedure: what's synced, what's per-machine, the checklist, known-good snapshot. |
 | `ORCHESTRATION.md` | Building skills + orchestrating agents (subagents, kimi subagent, workflows, ralph). |
-| `POTETO-SKILLS-WORKFLOW.md` | **The feature-building how-to with poteto's skills** — delegation-first pipeline (plan → execute → review), setup, cheat sheet. |
+| `POTETO-SKILLS-WORKFLOW.md` | **How to use poteto's pstack** — principles, `poteto-mode` playbooks, evidence discipline, per-project `brain/` setup. |
 | `KIMI-INTEGRATION.md` | The original deep-dive: how the integration works, the manual steps, the patch-syntax gotchas, troubleshooting. |
 
 ## Quick start (one machine)

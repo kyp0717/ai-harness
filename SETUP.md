@@ -191,10 +191,10 @@ the repo's `.agents/skills/`.
 
 The repo ships starter skills (`.agents/skills/`) and an orchestration guide:
 
-- **Skills** — `kimi-integration` (deploy/repair Kimi on a machine) and
-  `machine-parity` (weekly swap checklist). Auto-discovered in this repo's
-  sessions; available everywhere after `npm run skills:install`. Author new
-  skills as `.agents/skills/<name>/SKILL.md` (frontmatter: `name`,
+- **Skills** — poteto's pstack (30 skills: 20 principles + `poteto-mode` +
+  workflow skills). Auto-discovered in this repo's sessions; available
+  everywhere after `npm run skills:install`. Author new skills as
+  `.agents/skills/<name>/SKILL.md` (frontmatter: `name`,
   `description`, optional `whenToUse`).
 - **Orchestration** — see [`ORCHESTRATION.md`](ORCHESTRATION.md): subagents
   (`subagent`, `subagent_fork`), the Kimi CLI subagent (`subagent_kimi`),

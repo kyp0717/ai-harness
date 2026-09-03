@@ -116,18 +116,19 @@ session; a loaded skill's instructions override generic guidance for that task.
 
 ### Skills in this repo (vendored, git-synced)
 
-`.agents/skills/` holds **65 skills** — poteto's noodle collection (32) **plus poteto's pstack** (34, from `poteto/plugins#pstack`; 21 engineering principles + workflow skills + poteto-mode), all frozen at import
-time) plus three harness-ops skills:
+`.agents/skills/` holds **30 skills** — poteto's pstack, trimmed to strict (2026-09-02):
+the 20 engineering principles + `poteto-mode` (style + playbook routing) + the
+workflow skills (`architect`, `arena`, `interrogate`, `tdd`, `why`, `how`,
+`show-me-your-work`, `unslop`, `setup-pstack`). The noodle stage machinery,
+third-party packs, harness-ops skills, and `verify-atlas` were removed; see
+`POTETO-SKILLS-WORKFLOW.md`.
 
-| Skill | Purpose |
+| Skill group | Purpose |
 |---|---|
-| poteto's `noodle` collection (32) | execute, plan, review, refine, quality, debugging, worktree, commit, testing, todo, reflect, meditate, brain, ruminate, unslop, ts/go/react best-practices, frontend-design, interaction-design, adversarial-review, ast-grep, codex, find-skills, skill-creator, noodle, schedule, oops, … |
-| `how` | poteto's architecture-explainer skill |
-| `verify-atlas` | poteto's project-local verification skill example |
-| `poteto-mode` | poteto's agent style |
-| `feature-pipeline` | **Delegation-first default**: runs the poteto plan → execute → review pipeline automatically for any delegated feature request (see `POTETO-SKILLS-WORKFLOW.md`) |
-| `kimi-integration` | Deploy/repair Kimi on a machine (bridge, subscription login, troubleshooting) |
-| `machine-parity` | The weekly two-computer sync + verification checklist |
+| pstack principles (20) | Engineering guardrails (`principle-prove-it-works`, …) — seed a project's `brain/principles/` from these |
+| `poteto-mode` | Poteto's agent style + 22-playbook routing layer |
+| `architect`, `arena`, `interrogate`, `tdd`, `why`, `how` | Boundary-first design, parallel attempts, multi-model challenge, TDD, evidence-backed walkthroughs |
+| `show-me-your-work`, `unslop` | Auditable decision trail; prose cleanup |
 
 Available in this repo's sessions automatically (`.agents/skills/`); install
 globally on a machine with `npm run skills:install`.
@@ -137,13 +138,11 @@ globally on a machine with `npm run skills:install`.
 Skills are **model-agnostic** — any SKILL.md-based collection works unchanged
 on Kimi, DeepSeek, or any provider, and is universal across workspaces.
 
-This deployment's preferred set is **poteto's skills** (the `noodle`
-collection, `how`, and the verification-skill example):
+This deployment's vendored set is **poteto's pstack plugin** (pstack-strict):
 
 ```bash
-# Import poteto's collections into the user root (~/.dsh/skills) — available everywhere
-npm run skills:import:poteto
-npm run skills:import -- --dest .agents/skills <url>   # or into the repo (git-synced)
+# Re-import poteto's pstack from upstream into the repo (git-synced)
+npm run skills:import -- --dest .agents/skills <url>
 ```
 
 | Collection | Format | Compatible? |
