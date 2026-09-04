@@ -10,17 +10,32 @@ does and what proves it. Build to that.
 
 ## Discipline
 
+Build to the `Type:` line from the map. Behavior and surface build
+differently.
+
+### Behavior
+
 - The logic runs without the screen. Anything the driver must check must be
   reachable from a command line or a test. If a choice is tangled into UI or
   IO code, pull the choice into a function that takes plain values and
   returns one result, and let the surrounding code act on the answer. This
-  is the only structural rule in the loop.
+  is the only structural rule for behavior.
+
+### Surface
+
+- The rendered state must be reachable in a snapshot or screenshot: a window
+  that opens, a panel that lays out, a grid that renders, a font at a named
+  size. Render the widget without a live data feed so the state is
+  deterministic.
+
+### Both
+
 - Match the proof predicate exactly. The map says what evidence counts. If
   the map promises a journal row with a specific reason string, the code
-  writes exactly that string.
-- Changed features: behavior changes only where the updated predicate says.
-  Everything else stays identical so the baseline comparison in step 4 is
-  clean.
+  writes exactly that string. If it promises a visible state, the widget
+  renders exactly that state.
+- Changed features: change only where the updated predicate says. Everything
+  else stays identical so the baseline comparison in step 4 is clean.
 - Removed features: delete the code, delete its callers, leave no flags or
   dead branches behind.
 

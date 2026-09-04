@@ -18,10 +18,10 @@ against the repo's map directory:
 ./scripts/audit-features.sh <features-dir>
 ```
 
-It checks, per feature file: the required sections exist in order, the
-Anchors section exists, and every anchor's needle still greps in its file.
-It checks the index links every feature file. Failure output names the file
-and the missing piece.
+It checks, per feature file: the `Type:` line names Behavior or Surface, the
+required sections exist in order, the Anchors section exists, and every
+anchor's needle still greps in its file. It checks the index links every
+feature file. Failure output names the file and the missing piece.
 
 ## Resolving failures
 
@@ -36,6 +36,6 @@ and the missing piece.
 - The gate script is the enforcement. Do not do the audit by eye.
 - The repo wires the script into its own check command so the audit can fail
   a build. In ls-trader that is `cargo run -p tools -- check`.
-- The reverse direction, code surfaces with no map entry, needs the repo's
+- The reverse direction, code entry points with no map entry, needs the repo's
   own inventory patterns. Extend the repo's check command with them. The
   generic script checks anchors and structure only.

@@ -1,22 +1,23 @@
 ---
 name: sdlc-loop
-description: The software development life cycle loop for feature work. Five steps, two surface variants. Map first, build, driver, verify, audit last. Use whenever adding, changing, or removing a feature in any repo.
+description: The software development life cycle loop for feature work. Five steps, two feature types: behavior or surface. Map first, build, driver, verify, audit last. Use whenever adding, changing, or removing a feature in any repo.
 ---
 
 # SDLC loop
 
 One loop for all feature work. Add, change, and remove all follow the same
-five steps. The map is the contract. The driver is picked by surface.
+five steps. The map is the contract. The driver is picked by type.
 
 ## The loop
 
 1. **Map.** New feature gets a new entry with its proof predicate. Changed
    feature gets an updated predicate. Removed feature gets its entry deleted.
    Step skill: `sdlc-loop-step-01-map`.
-2. **Build.** Write or change the code to match the map. The one discipline:
-   the logic runs without the screen. Step skill: `sdlc-loop-step-02-build`.
+2. **Build.** Write or change the code to match the map. Behavior runs
+   without the screen, surface renders without a live feed. Step skill:
+   `sdlc-loop-step-02-build`.
 3. **Driver.** Build or update the command that exercises the feature and
-   prints evidence. Logic surface: a CLI subcommand. UI surface: a headless
+   prints evidence. Behavior: a CLI subcommand. Surface: a headless
    snapshot or a live screenshot. Step skill: `sdlc-loop-step-03-driver`.
 4. **Verify.** Unit tests, live evidence, perf where speed matters. Evidence
    over self-report. Honest verdicts: VERIFIED, NOT VERIFIED, INCONCLUSIVE.
@@ -25,25 +26,29 @@ five steps. The map is the contract. The driver is picked by surface.
    checks the map still matches the code. Step skill:
    `sdlc-loop-step-05-audit`.
 
-## Two variants, one loop
+## First question: behavior or surface
 
-A feature is driven through one of two surfaces.
+Before step 1, ask what the feature is. The answer drives every step that
+follows.
 
-- **Pure code loop.** The feature's proof is data: a journal row, a CSV row,
-  a log line, a decision. The driver is a CLI command in the repo's tooling.
-- **UI loop.** The feature's proof is rendered state: a banner, a color, a
-  marker. The driver is a snapshot harness or a screenshot of the live app.
+- **Behavior.** The feature's proof is data: a journal row, a CSV row, a log
+  line, a decision. It runs without the screen. The driver is a CLI
+  subcommand in the repo's tooling.
+- **Surface.** The feature's proof is rendered state: a banner, a color, a
+  marker, a window, a font. The driver is a snapshot harness or a screenshot
+  of the live app.
 
-A feature can span both. The map entry names which evidence comes from which
-loop. The map stays one map.
+A capability can span both. Split it: the metric is behavior, the grid that
+renders the metric is surface. Each side gets its own entry with its own
+`Type:` line. The map stays one map.
 
 ## The map contract
 
 The map lives in the repo, one index plus one file per feature. Each feature
-file has a title, one paragraph on the user-visible behavior, four H2
-sections in order (`Sub-features`, `How to get to it (user POV)`,
-`Driving it with <harness>`, `Gotchas`), and an `## Anchors` section listing
-the code that proves the feature exists. Step skill
+file has a title, a `Type:` line naming Behavior or Surface, one paragraph on
+the user-visible behavior, four H2 sections in order (`Sub-features`,
+`How to get to it (user POV)`, `Driving it with <harness>`, `Gotchas`), and
+an `## Anchors` section listing the code that proves the feature exists. Step skill
 `sdlc-loop-step-01-map` has the full format.
 
 ## Rules

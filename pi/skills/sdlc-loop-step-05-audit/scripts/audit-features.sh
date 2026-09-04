@@ -3,9 +3,10 @@
 #
 # Usage: audit-features.sh [features-dir]   (default: resource/features)
 #
-# Checks, per feature file: required sections in order, an Anchors section,
-# and every anchor "path: needle" greps in its file. Checks the index links
-# every feature file. Exits non-zero on any failure and names what failed.
+# Checks, per feature file: a Type line naming Behavior or Surface, the
+# required sections in order, an Anchors section, and every anchor
+# "path: needle" greps in its file. Checks the index links every feature
+# file. Exits non-zero on any failure and names what failed.
 set -uo pipefail
 
 dir="${1:-resource/features}"
@@ -35,6 +36,12 @@ for f in "$dir"/*.md; do
     fi
     prev="$line"
   done
+
+  # Type line names Behavior or Surface.
+  if ! grep -qE '^Type: (Behavior|Surface)$' "$f"; then
+    echo "FAIL $base: missing 'Type: Behavior' or 'Type: Surface' line"
+    fail=1
+  fi
 
   # Anchors: "- <path>: <needle>" bullets under ## Anchors.
   in_anchors=0

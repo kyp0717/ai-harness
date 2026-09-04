@@ -26,6 +26,9 @@ INCONCLUSIVE. Inconclusive is not a pass. Report it and say what was missing.
 
 ## Evidence rules
 
+- The `Type:` line names the artifact to inspect. Behavior: the data row.
+  Surface: the rendered frame. Inspect the one the entry promises, not the
+  other.
 - Inspect the artifact, never a self-report. A log line saying "passed" that
   the code printed about itself is not evidence.
 - If a check passes too easily, suspect the check before the code. A blank

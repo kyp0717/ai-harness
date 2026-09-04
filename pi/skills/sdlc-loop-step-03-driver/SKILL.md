@@ -1,14 +1,15 @@
 ---
 name: sdlc-loop-step-03-driver
-description: Step 3 of the SDLC loop. Build the driver that exercises the feature and prints evidence. CLI subcommand for logic features, snapshot harness or screenshot for UI features. Use after the code from step 2 exists.
+description: Step 3 of the SDLC loop. Build the driver that exercises the feature and prints evidence. CLI subcommand for behavior features, snapshot harness or screenshot for surface features. Use after the code from step 2 exists.
 ---
 
 # Step 3: driver
 
 The driver runs the feature without a human at the keyboard and prints the
-evidence the map entry names. One driver per surface.
+evidence the map entry names. The `Type:` line picks the driver: behavior
+gets a CLI driver, surface gets a snapshot or screenshot driver.
 
-## Logic surface: CLI driver
+## Behavior: CLI driver
 
 Add a subcommand to the repo's tooling CLI. It exercises the feature on
 recorded or synthetic inputs and prints the resulting evidence: the journal
@@ -20,7 +21,7 @@ rows, the CSV rows, the decisions. Requirements:
 - For changed features, the driver can replay the same input against the old
   behavior so step 4 can compare before and after.
 
-## UI surface: snapshot or screenshot driver
+## Surface: snapshot or screenshot driver
 
 A CLI command cannot check what a panel looks like. For rendered state:
 

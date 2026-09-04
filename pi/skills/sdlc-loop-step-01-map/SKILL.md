@@ -19,10 +19,23 @@ at `resource/features/` (ls-trader) or wherever the repo keeps it: one index
   behavior. Record the old predicate as the baseline.
 - **Removed feature.** Delete the entry.
 
+## Classify first
+
+Ask what the feature is before writing the entry. The answer drives the
+proof predicate, the driver, and every step after.
+
+- **Behavior.** The proof is data: a journal row, a CSV row, a log line, a
+  decision. The `Type:` line reads `Behavior`.
+- **Surface.** The proof is rendered state: a banner, a color, a marker, a
+  window, a font. The `Type:` line reads `Surface`.
+
+A capability that spans both is split into two entries: the metric is
+behavior, the grid that renders the metric is surface. One `Type:` per entry.
+
 ## Per-feature file format
 
-Title, one paragraph on the user-visible behavior, then exactly these H2
-sections in order:
+Title, a `Type:` line naming Behavior or Surface, one paragraph on the
+user-visible behavior, then exactly these H2 sections in order:
 
 1. `Sub-features` — short IDs, one line each.
 2. `How to get to it (user POV)` — every user entry point.
@@ -43,8 +56,9 @@ reporting, and the feature list linking every file.
 
 ## Rules
 
+- Classify first. The `Type:` line names Behavior or Surface, and it drives
+  the proof predicate and the driver. Behavior proof is a data row, driven
+  by the CLI loop. Surface proof is rendered state, driven by the UI loop.
 - The proof predicate must name evidence: a row, a line, a visible state.
   Never "works".
-- Pick the surface per evidence item. Logic evidence goes to the CLI loop.
-  Rendered state goes to the UI loop. Say which in the entry.
 - Record the feature ID and entry point with every verification artifact.
