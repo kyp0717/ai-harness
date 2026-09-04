@@ -11,6 +11,7 @@ mkdir -p ~/.agents/skills ~/.pi/agent/extensions
 cp -r "$here"/skills/sdlc-loop ~/.agents/skills/
 cp -r "$here"/skills/sdlc-loop-step-* ~/.agents/skills/
 cp "$here/extensions/sdlc-loop.ts" ~/.pi/agent/extensions/
+cp "$here/extensions/unslop.ts" ~/.pi/agent/extensions/
 
-echo "installed: ~/.agents/skills/sdlc-loop* and ~/.pi/agent/extensions/sdlc-loop.ts"
+echo "installed: ~/.agents/skills/sdlc-loop* and ~/.pi/agent/extensions/{sdlc-loop,unslop}.ts"
 echo "skills are discovered by pi on next session start; extension on next pi start"
