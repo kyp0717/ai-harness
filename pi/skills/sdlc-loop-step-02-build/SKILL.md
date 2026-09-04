@@ -30,6 +30,9 @@ differently.
 
 ### Both
 
+- No comments. Do not write comments in code: names and structure carry
+  the explanation, and the feature map carries the why. A real constraint
+  is encoded in a type, a test, or a check, never a comment.
 - Match the proof predicate exactly. The map says what evidence counts. If
   the map promises a journal row with a specific reason string, the code
   writes exactly that string. If it promises a visible state, the widget

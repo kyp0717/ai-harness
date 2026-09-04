@@ -8,7 +8,8 @@
 # Behavior or Surface, the required sections in order, an Anchors section,
 # and every anchor "path: needle" greps in its file. Checks the index links
 # every feature file, that every sub-feature ID has exactly one home, and
-# that every "renders <id>" / "feeds <id>" link resolves to a defined
+# that every "renders <id>" / "feeds <id>" / "consults <id>" /
+# "consumes <id>" link resolves to a defined
 # sub-feature ID. Exits non-zero on any failure and names what failed.
 set -uo pipefail
 
@@ -96,12 +97,12 @@ if [ -n "$dup" ]; then
   fail=1
 fi
 
-# Every renders/feeds link resolves to a defined sub-feature ID.
+# Every renders/feeds/consults/consumes link resolves to a defined sub-feature ID.
 known="$(printf '%s\n' "$all_ids" | sed '/^$/d' | sort -u)"
 while IFS= read -r f; do
   [ "$(basename "$f")" = "README.md" ] && continue
   rel="${f#$dir/}"
-  refs="$(grep -oE '(renders|feeds) `[^`]+`' "$f" | sed -E 's/^(renders|feeds) `([^`]+)`/\2/' || true)"
+  refs="$(grep -oE '(renders|feeds|consults|consumes) `[^`]+`' "$f" | sed -E 's/^(renders|feeds|consults|consumes) `([^`]+)`/\2/' || true)"
   while IFS= read -r r; do
     [ -z "$r" ] && continue
     if ! printf '%s\n' "$known" | grep -qxF "$r"; then

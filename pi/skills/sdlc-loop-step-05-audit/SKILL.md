@@ -22,8 +22,8 @@ It checks, per feature file: the `ID:` line names the feature, the `Type:`
 line names Behavior or Surface, the required sections exist in order, the
 Anchors section exists, and every anchor's needle still greps in its file. It
 checks the index links every feature file, that every sub-feature ID is
-defined in exactly one file, and that every `renders <id>` / `feeds <id>`
-link resolves to a defined sub-feature ID. It walks type folders
+defined in exactly one file, and that every `renders` / `feeds` / `consults`
+/ `consumes` link resolves to a defined sub-feature ID. It walks type folders
 (`behavior/`, `surface/`) when present. Failure output names the file and the
 missing piece.
 

@@ -64,8 +64,9 @@ reporting, and the feature list linking every file.
   the proof predicate and the driver. Behavior proof is a data row, driven
   by the CLI loop. Surface proof is rendered state, driven by the UI loop.
 - A surface entry links to the behavior parts it renders or controls with
-  `renders <id>` or `feeds <id>`. The ID is a sub-feature ID from the behavior
-  file. The audit fails if the link target is not defined anywhere.
+  `renders <id>` or `feeds <id>`. A behavior driver that calls a gate or
+  pipeline in another feature links with `consults <id>` or `consumes <id>`.
+  The audit fails if a link target is not defined anywhere.
 - The proof predicate must name evidence: a row, a line, a visible state.
   Never "works".
 - Record the feature ID and entry point with every verification artifact.
