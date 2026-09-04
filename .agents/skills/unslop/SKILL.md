@@ -14,6 +14,12 @@ Edit text to remove AI patterns and add human voice.
 3. Add soul (see next section).
 4. Self-audit: "What makes this obviously AI generated?" Fix remaining tells.
 
+## Reply format
+
+- Be concise. Bullet points under short headers, not long paragraphs.
+- Lead with the answer or the action taken, then the detail.
+- One header per topic. No preamble, no closing summary.
+
 ## Adding soul
 
 Removing patterns is half the job. Sterile, voiceless writing is just as obvious.
