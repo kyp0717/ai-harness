@@ -7,7 +7,8 @@ description: Step 1 of the SDLC loop. Build the feature map, add a new feature e
 
 The map is the contract. Everything later reads from it. It lives in the repo
 at `resource/features/` (ls-trader) or wherever the repo keeps it: one index
-`README.md` plus one file per feature.
+`README.md` plus one file per feature, sorted by type into `behavior/` and
+`surface/` folders.
 
 ## When this step runs
 
@@ -31,11 +32,14 @@ proof predicate, the driver, and every step after.
 
 A capability that spans both is split into two entries: the metric is
 behavior, the grid that renders the metric is surface. One `Type:` per entry.
+The folder matches the type: `behavior/` for behavior entries, `surface/` for
+surface entries.
 
 ## Per-feature file format
 
-Title, a `Type:` line naming Behavior or Surface, one paragraph on the
-user-visible behavior, then exactly these H2 sections in order:
+Title, an `ID:` line naming the feature, a `Type:` line naming Behavior or
+Surface, one paragraph on the user-visible behavior, then exactly these H2
+sections in order:
 
 1. `Sub-features` — short IDs, one line each, unique across the map.
 2. `How to get to it (user POV)` — every user entry point.
@@ -59,6 +63,9 @@ reporting, and the feature list linking every file.
 - Classify first. The `Type:` line names Behavior or Surface, and it drives
   the proof predicate and the driver. Behavior proof is a data row, driven
   by the CLI loop. Surface proof is rendered state, driven by the UI loop.
+- A surface entry links to the behavior parts it renders or controls with
+  `renders <id>` or `feeds <id>`. The ID is a sub-feature ID from the behavior
+  file. The audit fails if the link target is not defined anywhere.
 - The proof predicate must name evidence: a row, a line, a visible state.
   Never "works".
 - Record the feature ID and entry point with every verification artifact.

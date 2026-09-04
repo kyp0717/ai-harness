@@ -3,11 +3,13 @@
 #
 # Usage: audit-features.sh [features-dir]   (default: resource/features)
 #
-# Checks, per feature file: a Type line naming Behavior or Surface, the
-# required sections in order, an Anchors section, and every anchor
-# "path: needle" greps in its file. Checks the index links every feature
-# file and that every sub-feature ID has exactly one home. Exits non-zero
-# on any failure and names what failed.
+# The map may be flat or split into type folders (behavior/, surface/).
+# Checks, per feature file: an ID line naming the feature, a Type line naming
+# Behavior or Surface, the required sections in order, an Anchors section,
+# and every anchor "path: needle" greps in its file. Checks the index links
+# every feature file, that every sub-feature ID has exactly one home, and
+# that every "renders <id>" / "feeds <id>" link resolves to a defined
+# sub-feature ID. Exits non-zero on any failure and names what failed.
 set -uo pipefail
 
 dir="${1:-resource/features}"
@@ -19,35 +21,42 @@ if [ ! -f "$dir/README.md" ]; then
   exit 1
 fi
 
-for f in "$dir"/*.md; do
-  [ "$f" = "$dir/README.md" ] && continue
-  base="$(basename "$f")"
+# First pass: per-file structure, anchors, index links; collect sub-feature IDs.
+while IFS= read -r f; do
+  [ "$(basename "$f")" = "README.md" ] && continue
+  rel="${f#$dir/}"
 
   # Required sections, in order.
   prev=0
   for h in "## Sub-features" "## How to get to it (user POV)" "## Driving it" "## Gotchas" "## Anchors"; do
     line="$(grep -n "^$h" "$f" | head -1 | cut -d: -f1)"
     if [ -z "$line" ]; then
-      echo "FAIL $base: missing section '$h'"
+      echo "FAIL $rel: missing section '$h'"
       fail=1
       continue
     fi
     if [ "$line" -le "$prev" ]; then
-      echo "FAIL $base: section '$h' out of order"
+      echo "FAIL $rel: section '$h' out of order"
       fail=1
     fi
     prev="$line"
   done
 
-  # Type line names Behavior or Surface.
-  if ! grep -qE '^Type: (Behavior|Surface)$' "$f"; then
-    echo "FAIL $base: missing 'Type: Behavior' or 'Type: Surface' line"
+  # ID line names the feature.
+  if ! grep -qE '^ID: [a-z0-9][a-z0-9-]*$' "$f"; then
+    echo "FAIL $rel: missing 'ID: <feature-id>' line"
     fail=1
   fi
 
-  # Sub-feature IDs, collected for the uniqueness check below.
+  # Type line names Behavior or Surface.
+  if ! grep -qE '^Type: (Behavior|Surface)$' "$f"; then
+    echo "FAIL $rel: missing 'Type: Behavior' or 'Type: Surface' line"
+    fail=1
+  fi
+
+  # Sub-feature IDs, collected for the uniqueness and link checks below.
   all_ids="$all_ids
-$(awk '/^## Sub-features/{f=1;next} /^## /{f=0} f && /^- `/{ match($0, /`[^`]+`/); print substr($0, RSTART+1, RLENGTH-2) }' "$f")"
+$(awk '/^## Sub-features/{s=1;next} /^## /{s=0} s && /^- `/{ match($0, /`[^`]+`/); print substr($0, RSTART+1, RLENGTH-2) }' "$f")"
 
   # Anchors: "- <path>: <needle>" bullets under ## Anchors.
   in_anchors=0
@@ -63,10 +72,10 @@ $(awk '/^## Sub-features/{f=1;next} /^## /{f=0} f && /^- `/{ match($0, /`[^`]+`/
         path="${spec%%:*}"
         needle="${spec#*: }"
         if [ ! -f "$path" ]; then
-          echo "FAIL $base: anchor path missing: $path"
+          echo "FAIL $rel: anchor path missing: $path"
           fail=1
         elif ! grep -qF "$needle" "$path"; then
-          echo "FAIL $base: anchor needle not found in $path: $needle"
+          echo "FAIL $rel: anchor needle not found in $path: $needle"
           fail=1
         fi
         ;;
@@ -74,11 +83,11 @@ $(awk '/^## Sub-features/{f=1;next} /^## /{f=0} f && /^- `/{ match($0, /`[^`]+`/
   done < "$f"
 
   # Index links every feature file.
-  if ! grep -qF "$base" "$dir/README.md"; then
-    echo "FAIL README.md: no link to $base"
+  if ! grep -qF "$rel" "$dir/README.md"; then
+    echo "FAIL README.md: no link to $rel"
     fail=1
   fi
-done
+done < <(find "$dir" -name '*.md' | sort)
 
 # Every sub-feature ID has exactly one home.
 dup="$(printf '%s\n' "$all_ids" | sed '/^$/d' | sort | uniq -d)"
@@ -86,6 +95,21 @@ if [ -n "$dup" ]; then
   echo "FAIL sub-feature ID defined in more than one file: $(printf '%s' "$dup" | tr '\n' ' ')"
   fail=1
 fi
+
+# Every renders/feeds link resolves to a defined sub-feature ID.
+known="$(printf '%s\n' "$all_ids" | sed '/^$/d' | sort -u)"
+while IFS= read -r f; do
+  [ "$(basename "$f")" = "README.md" ] && continue
+  rel="${f#$dir/}"
+  refs="$(grep -oE '(renders|feeds) `[^`]+`' "$f" | sed -E 's/^(renders|feeds) `([^`]+)`/\2/' || true)"
+  while IFS= read -r r; do
+    [ -z "$r" ] && continue
+    if ! printf '%s\n' "$known" | grep -qxF "$r"; then
+      echo "FAIL $rel: link target not defined anywhere: $r"
+      fail=1
+    fi
+  done <<< "$refs"
+done < <(find "$dir" -name '*.md' | sort)
 
 if [ "$fail" = 1 ]; then
   exit 1
