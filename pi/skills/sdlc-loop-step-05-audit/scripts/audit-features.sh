@@ -6,11 +6,13 @@
 # Checks, per feature file: a Type line naming Behavior or Surface, the
 # required sections in order, an Anchors section, and every anchor
 # "path: needle" greps in its file. Checks the index links every feature
-# file. Exits non-zero on any failure and names what failed.
+# file and that every sub-feature ID has exactly one home. Exits non-zero
+# on any failure and names what failed.
 set -uo pipefail
 
 dir="${1:-resource/features}"
 fail=0
+all_ids=""
 
 if [ ! -f "$dir/README.md" ]; then
   echo "FAIL missing index $dir/README.md"
@@ -43,6 +45,10 @@ for f in "$dir"/*.md; do
     fail=1
   fi
 
+  # Sub-feature IDs, collected for the uniqueness check below.
+  all_ids="$all_ids
+$(awk '/^## Sub-features/{f=1;next} /^## /{f=0} f && /^- `/{ match($0, /`[^`]+`/); print substr($0, RSTART+1, RLENGTH-2) }' "$f")"
+
   # Anchors: "- <path>: <needle>" bullets under ## Anchors.
   in_anchors=0
   while IFS= read -r l; do
@@ -73,6 +79,13 @@ for f in "$dir"/*.md; do
     fail=1
   fi
 done
+
+# Every sub-feature ID has exactly one home.
+dup="$(printf '%s\n' "$all_ids" | sed '/^$/d' | sort | uniq -d)"
+if [ -n "$dup" ]; then
+  echo "FAIL sub-feature ID defined in more than one file: $(printf '%s' "$dup" | tr '\n' ' ')"
+  fail=1
+fi
 
 if [ "$fail" = 1 ]; then
   exit 1

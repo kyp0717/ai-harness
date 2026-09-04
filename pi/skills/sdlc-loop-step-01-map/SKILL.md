@@ -37,7 +37,7 @@ behavior, the grid that renders the metric is surface. One `Type:` per entry.
 Title, a `Type:` line naming Behavior or Surface, one paragraph on the
 user-visible behavior, then exactly these H2 sections in order:
 
-1. `Sub-features` — short IDs, one line each.
+1. `Sub-features` — short IDs, one line each, unique across the map.
 2. `How to get to it (user POV)` — every user entry point.
 3. `Driving it with <harness>` — `Preconditions:` then labeled bullets pairing
    each user action with the exact command and the observable result.

@@ -21,7 +21,8 @@ against the repo's map directory:
 It checks, per feature file: the `Type:` line names Behavior or Surface, the
 required sections exist in order, the Anchors section exists, and every
 anchor's needle still greps in its file. It checks the index links every
-feature file. Failure output names the file and the missing piece.
+feature file and that every sub-feature ID is defined in exactly one file.
+Failure output names the file and the missing piece.
 
 ## Resolving failures
 
