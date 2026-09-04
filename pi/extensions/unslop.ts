@@ -4,6 +4,7 @@ const UNSLOP =
   "\n\nUNSLOP — enforced on every reply:\n" +
   "- No em dashes, no mid-sentence colons, no puffery, no chatbot phrases. Plain words, active voice.\n" +
   "- Be concise. Bullet points under short headers, not long paragraphs.\n" +
+  "- Each bullet is one line, 80 characters or fewer.\n" +
   "- Lead with the answer or the action taken, then the detail.\n" +
   "- One header per topic. No preamble, no closing summary.";
 

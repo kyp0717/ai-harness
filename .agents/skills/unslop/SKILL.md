@@ -17,6 +17,7 @@ Edit text to remove AI patterns and add human voice.
 ## Reply format
 
 - Be concise. Bullet points under short headers, not long paragraphs.
+- Each bullet is one line, 80 characters or fewer.
 - Lead with the answer or the action taken, then the detail.
 - One header per topic. No preamble, no closing summary.
 
