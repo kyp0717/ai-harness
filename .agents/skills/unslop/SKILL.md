@@ -21,6 +21,15 @@ Edit text to remove AI patterns and add human voice.
 - Lead with the answer or the action taken, then the detail.
 - One header per topic. No preamble, no closing summary.
 
+## Code comments
+
+- Never add comments to code. Names and structure carry the explanation.
+- When real work touches code that carries comments, strip them in that
+  change. Only the touched region, not the whole file.
+- Relocate the load-bearing why first: incidents.md for incident refs,
+  the feature's Gotchas section for traps.
+- No backward sweep. Untouched code keeps its comments until touched.
+
 ## Adding soul
 
 Removing patterns is half the job. Sterile, voiceless writing is just as obvious.
